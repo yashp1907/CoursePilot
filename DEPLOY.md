@@ -37,7 +37,7 @@ Vercel Cron can't read users' encrypted Canvas tokens without a Supabase service
 - Security headers are set in `next.config.ts`. A strict CSP is not set because Next.js inline scripts need nonces; add one if you host untrusted content.
 
 ## Canvas extension
-If students use the browser extension, add your production URL to `extension/manifest.json` → `content_scripts[0].matches`, then reload the extension. Apply migration `…0003…` so extension connections are allowed. Extension syncs run in the student's browser, so they need Canvas open/logged in.
+If students use the browser extension, the download button in Integrations serves a zip built automatically at deploy time (`prebuild`). `gocoursepilot.vercel.app` is allowed in `extension/manifest.json`; for a different domain add it to `host_permissions` and `content_scripts[0].matches`. Apply migration `…0003…` so extension connections are allowed. Extension syncs run in the student's browser, so they need Canvas open/logged in.
 
 ## Installing on your phone (PWA)
 CoursePilot is an installable web app. After deploying to Vercel (https is required; it won't install from `localhost` or plain-http Wi-Fi addresses):

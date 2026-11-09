@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
-import { AlertTriangle, CheckCircle2, ExternalLink, Link2, Puzzle, RefreshCw, Unplug } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Download, ExternalLink, Link2, Puzzle, RefreshCw, Unplug } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Field } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { summarizeSync, syncCanvas } from "@/lib/canvas/client-sync";
-import { pingExtension, type ExtensionInfo, type Progress } from "@/lib/canvas/extension-bridge";
+import { hintCanvasOrigin, pingExtension, type ExtensionInfo, type Progress } from "@/lib/canvas/extension-bridge";
 import type { SyncSummary } from "@/lib/canvas/sync";
 
 export interface SyncRow { id: string; status: string; summary: Partial<SyncSummary> | null; error: string | null; started_at: string; finished_at: string | null }
@@ -20,6 +20,15 @@ interface Props {
 }
 
 const METHOD_LABEL: Record<string, string> = { oauth: "OAuth", token: "access token", extension: "browser extension" };
+
+function Step({ n, done, title, children }: { n: number; done: boolean; title: string; children: React.ReactNode }) {
+  return (
+    <li className="flex gap-3">
+      <span className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-[11px] font-semibold ${done ? "bg-success text-white" : "bg-primary/15 text-primary"}`}>{done ? <CheckCircle2 className="size-3.5" /> : n}</span>
+      <div className="min-w-0 space-y-1"><p className="font-medium leading-5">{title}</p>{children}</div>
+    </li>
+  );
+}
 
 export function CanvasPanel({ connection, history, oauthConfigured, defaultBaseUrl, flash }: Props) {
   const router = useRouter();
@@ -32,7 +41,17 @@ export function CanvasPanel({ connection, history, oauthConfigured, defaultBaseU
   const [progress, setProgress] = useState<Progress | null>(null);
   const [infoText, setInfoText] = useState<string | null>(null);
 
-  useEffect(() => { pingExtension(1200).then(setExt); }, []);
+  // Check on load, then keep checking until it's ready so setup finishes by itself (no reload needed).
+  const extReadyNow = !!ext && ext.granted && !!ext.canvasOrigin;
+  useEffect(() => {
+    let live = true;
+    const check = () => pingExtension(1200).then((r) => { if (live) setExt(r); });
+    check();
+    if (extReadyNow) return () => { live = false; };
+    const t = setInterval(check, 2500);
+    return () => { live = false; clearInterval(t); };
+  }, [extReadyNow]);
+  useEffect(() => { if (ext && !ext.granted) hintCanvasOrigin(connection?.base_url ?? baseUrl); }, [ext, connection?.base_url, baseUrl]);
 
   const viaExtension = connection?.auth_type === "extension";
 
@@ -91,7 +110,7 @@ export function CanvasPanel({ connection, history, oauthConfigured, defaultBaseU
               <Button onClick={() => sync(viaExtension ? "extension" : "api")} loading={busy === "sync"} disabled={viaExtension && ext === null}><RefreshCw /> Sync now</Button>
               <Button variant="ghost" className="text-destructive" onClick={disconnect} loading={busy === "disconnect"}><Unplug /> Disconnect</Button>
               {busy === "sync" && viaExtension && <span className="text-xs text-muted-foreground">{infoText ? progressText : `Fetching ${progressText}`}</span>}
-              {viaExtension && ext === null && <span className="text-xs text-warning">Extension not detected in this browser. Open this page in Chrome with the extension installed.</span>}
+              {viaExtension && ext === null && <span className="text-xs text-warning">Extension not detected in this browser. Open this page in desktop Chrome, Edge or Brave with it installed, or <a className="underline" href="/coursepilot-canvas-bridge.zip" download>download it</a>.</span>}
             </div>
           )}
 
@@ -104,11 +123,24 @@ export function CanvasPanel({ connection, history, oauthConfigured, defaultBaseU
                 </div>
                 <p className="text-xs text-muted-foreground">The extension reads <b>your own</b> Canvas data through the Canvas session you&apos;re already logged into, the same way the Canvas website does. It&apos;s read-only, asks Chrome for access to just your school&apos;s Canvas address, and sends your data only to this CoursePilot tab. Your Canvas password and cookies never leave your browser.</p>
                 {!extReady && (
-                  <ol className="list-decimal space-y-1 pl-5 text-xs text-muted-foreground">
-                    <li>In Chrome, open <code className="rounded bg-muted px-1">chrome://extensions</code>, turn on <b>Developer mode</b>, click <b>Load unpacked</b>, and choose the <code className="rounded bg-muted px-1">extension</code> folder of this project.</li>
-                    <li>Click the extension&apos;s icon, enter your school&apos;s Canvas address, and click <b>Grant access &amp; save</b>. Make sure you&apos;re logged into Canvas in this browser.</li>
-                    <li><b>Reload this page</b>, then click Sync below.</li>
-                  </ol>
+                  <div className="space-y-3 rounded-lg bg-muted/50 p-3">
+                    <ol className="space-y-3 text-sm">
+                      <Step n={1} done={!!ext} title="Add it to Chrome">
+                        {ext ? <span className="text-xs text-muted-foreground">Installed.</span> : (
+                          <div className="space-y-1.5">
+                            <Button asChild size="sm"><a href="/coursepilot-canvas-bridge.zip" download><Download /> Download extension</a></Button>
+                            <p className="text-xs text-muted-foreground">Unzip it, open <code className="rounded bg-muted px-1">chrome://extensions</code>, turn on <b>Developer mode</b>, click <b>Load unpacked</b> and pick the unzipped folder. Works in Chrome, Edge and Brave on a computer.</p>
+                          </div>
+                        )}
+                      </Step>
+                      <Step n={2} done={!!ext?.granted} title="Allow your Canvas">
+                        <p className="text-xs text-muted-foreground">Click the puzzle-piece icon in Chrome → <b>CoursePilot Canvas Bridge</b>. Your Canvas address will already be filled in, so just click <b>Grant access &amp; save</b>.</p>
+                      </Step>
+                      <Step n={3} done={false} title="Sync">
+                        <p className="text-xs text-muted-foreground">Stay logged into Canvas in this browser. This page notices the extension on its own; no reload needed.</p>
+                      </Step>
+                    </ol>
+                  </div>
                 )}
                 <div className="flex flex-wrap items-center gap-2">
                   <Button onClick={() => sync("extension")} loading={busy === "sync"} disabled={!extReady}><RefreshCw /> {expired ? "Reconnect & sync" : "Sync with extension"}</Button>

@@ -35,6 +35,12 @@ export function pingExtension(timeoutMs = 800): Promise<ExtensionInfo | null> {
   });
 }
 
+/** Tell the extension which Canvas address to prefill in its popup (a hint only; the student still approves access). */
+export function hintCanvasOrigin(url: string) {
+  if (typeof window === "undefined") return;
+  try { window.postMessage({ source: FROM_PAGE, id: `hint-${Date.now()}`, type: "hint", canvasOrigin: new URL(url).origin }, window.location.origin); } catch { /* not a URL yet */ }
+}
+
 export function fetchViaExtension(onProgress?: (p: Progress) => void): Promise<FetchResult> {
   return new Promise((resolve) => {
     rpc({ type: "fetch" }, (m) => {

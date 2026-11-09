@@ -10,14 +10,14 @@ makes) and hands them to your open CoursePilot tab, which saves them to your acc
 - **Only your CoursePilot tab can talk to it** (a content script on `localhost:3000` and any address you add below).
 - It asks Chrome for permission to **one** host (your Canvas address), not all websites.
 
-## Install (Chrome, Edge, Brave)
-1. Open `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, select this `extension/` folder.
-2. Click the extension's icon → enter your Canvas address (e.g. `https://canvas.youruniversity.edu`) → **Grant access & save**.
-   Keep yourself logged into Canvas in the same browser profile.
-3. Open CoursePilot → **Integrations** (reload the page once after installing) → **Sync with extension**.
+## Install (Chrome, Edge, Brave on a computer)
+Easiest: open CoursePilot → **Integrations** → **Download extension**, then follow the three steps shown there (the page detects the extension on its own and your Canvas address is prefilled).
+
+Manually: open `chrome://extensions`, enable **Developer mode**, **Load unpacked**, select this `extension/` folder (or the unzipped download), click the extension icon, enter your Canvas address and **Grant access & save**.
+Phones and tablets can't run Chrome extensions; use an access token there, or sync once from a computer.
 
 ## Using a deployed CoursePilot
-Add your site to `content_scripts[0].matches` in `manifest.json` (e.g. `"https://your-app.vercel.app/*"`), then click the reload icon on the extension card.
+The production site (`gocoursepilot.vercel.app`) is already allowed. For another domain, add it to both `host_permissions` and `content_scripts[0].matches` in `manifest.json`. The download zip is rebuilt on every `npm run dev`/`build` by `scripts/build-extension-zip.mjs`.
 
 ## Troubleshooting
 - *"Not detected"*: reload the CoursePilot tab after installing; check the tab's address is in `matches`.

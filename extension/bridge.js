@@ -5,13 +5,17 @@
   const FROM_EXT = "coursepilot-extension";
   const send = (id, payload) => window.postMessage({ source: FROM_EXT, id, ...payload }, location.origin);
 
-  window.addEventListener("message", (e) => {
+  window.addEventListener("message", function onMsg(e) {
+    // After the extension is reloaded/updated this copy is orphaned: step aside for the fresh one.
+    if (!chrome.runtime?.id) { window.removeEventListener("message", onMsg); return; }
     if (e.source !== window || e.origin !== location.origin) return;
     const m = e.data;
     if (!m || m.source !== FROM_PAGE || typeof m.id !== "string") return;
 
     if (m.type === "ping") {
       chrome.runtime.sendMessage({ type: "ping" }).then((r) => send(m.id, { type: "pong", ...r })).catch(() => send(m.id, { type: "error", error: "Extension unavailable. Reload the page." }));
+    } else if (m.type === "hint") {
+      chrome.runtime.sendMessage({ type: "hint", canvasOrigin: m.canvasOrigin }).catch(() => {});
     } else if (m.type === "fetch") {
       let done = false;
       let port;

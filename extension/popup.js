@@ -13,8 +13,12 @@ function normalize(v) {
   return u.origin;
 }
 
-chrome.storage.local.get("canvasOrigin").then(async ({ canvasOrigin }) => {
-  if (!canvasOrigin) return;
+chrome.storage.local.get(["canvasOrigin", "hintOrigin"]).then(async ({ canvasOrigin, hintOrigin }) => {
+  if (!canvasOrigin) {
+    // CoursePilot told us the school's Canvas address; prefill it so setup is a single click.
+    if (hintOrigin) { $("origin").value = hintOrigin; status("Canvas address filled in from CoursePilot. Click “Grant access & save”."); }
+    return;
+  }
   $("origin").value = canvasOrigin;
   const ok = await chrome.permissions.contains({ origins: [`${canvasOrigin}/*`] });
   status(ok ? "Access granted. Open CoursePilot and click Sync." : "Saved, but access isn't granted yet. Click Grant access.", ok ? "ok" : "");

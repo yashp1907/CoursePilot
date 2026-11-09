@@ -3,11 +3,23 @@ import { createSession, fetchAllCanvasData, NotLoggedInError } from "./lib/canva
 const VERSION = chrome.runtime.getManifest().version;
 
 async function settings() {
-  const { canvasOrigin } = await chrome.storage.local.get("canvasOrigin");
-  if (!canvasOrigin) return { canvasOrigin: null, granted: false };
+  const { canvasOrigin, hintOrigin } = await chrome.storage.local.get(["canvasOrigin", "hintOrigin"]);
+  if (!canvasOrigin) return { canvasOrigin: null, granted: false, hintOrigin: hintOrigin ?? null };
   const granted = await chrome.permissions.contains({ origins: [`${canvasOrigin}/*`] });
-  return { canvasOrigin, granted };
+  return { canvasOrigin, granted, hintOrigin: hintOrigin ?? null };
 }
+
+// Right after install/update, wake up any CoursePilot tabs that are already open so the page can find the
+// extension without a manual reload.
+chrome.runtime.onInstalled.addListener(async () => {
+  const { content_scripts: cs, host_permissions: hosts } = chrome.runtime.getManifest();
+  try {
+    const tabs = await chrome.tabs.query({ url: hosts });
+    for (const tab of tabs) {
+      if (tab.id != null) await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: cs[0].js }).catch(() => {});
+    }
+  } catch { /* best effort */ }
+});
 
 // One-shot questions from the bridge content script (only our own content script can reach this).
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
@@ -15,6 +27,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg?.type === "ping") {
     settings().then((s) => sendResponse({ ok: true, version: VERSION, ...s }));
     return true;
+  }
+  if (msg?.type === "hint") {
+    // The CoursePilot page suggests the student's Canvas address so the popup can prefill it. Only ever a hint:
+    // the student still has to approve Chrome's permission prompt themselves.
+    try {
+      const u = new URL(String(msg.canvasOrigin));
+      if (u.protocol === "https:") chrome.storage.local.set({ hintOrigin: u.origin });
+    } catch { /* ignore */ }
+    sendResponse({ ok: true });
+    return false;
   }
   return false;
 });
