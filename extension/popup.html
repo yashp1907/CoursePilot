@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CoursePilot Canvas Bridge</title>
+<style>
+  body { font: 13px/1.45 system-ui, sans-serif; width: 340px; margin: 0; padding: 14px; color: #0f172a; }
+  h1 { font-size: 14px; margin: 0 0 4px; }
+  p { margin: 6px 0; color: #475569; }
+  label { display: block; margin-top: 10px; font-weight: 600; }
+  input { box-sizing: border-box; width: 100%; padding: 7px 9px; margin-top: 4px; border: 1px solid #cbd5e1; border-radius: 6px; font: inherit; }
+  button { margin-top: 10px; padding: 7px 12px; border: 0; border-radius: 6px; background: #2f5bea; color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+  button.secondary { background: #e2e8f0; color: #0f172a; margin-left: 6px; }
+  #status { margin-top: 10px; padding: 8px 10px; border-radius: 6px; background: #f1f5f9; min-height: 18px; }
+  #status.ok { background: #dcfce7; color: #166534; } #status.err { background: #fee2e2; color: #991b1b; }
+  small { color: #64748b; display: block; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <h1>CoursePilot Canvas Bridge</h1>
+  <p>Reads <b>your own</b> Canvas data using your logged-in browser session. Read-only.</p>
+  <label for="origin">Your school's Canvas address</label>
+  <input id="origin" type="url" placeholder="https://canvas.youruniversity.edu" autocomplete="off" />
+  <button id="save">Grant access &amp; save</button><button id="test" class="secondary">Test</button>
+  <div id="status" role="status"></div>
+  <small>Chrome will ask permission for only this one address. Nothing is sent anywhere except to your open CoursePilot tab. Use "Sync" inside CoursePilot.</small>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 1234 >>
+stream
+BT /F1 11 Tf 14 TL 50 750 Td
+(DEMO 101: Introduction to Examples \(sample syllabus, fictional\)) Tj T*
+(Fall 2026   |   3 credits   |   Room 1200 Demo Hall) Tj T*
+(Instructor: Dr. Sample Person   Email: sample.person@example.edu) Tj T*
+(Office hours: Tuesdays and Thursdays 2:00-3:30 PM) Tj T*
+() Tj T*
+(Course description: A fictional course used to test CoursePilot's syllabus parser.) Tj T*
+() Tj T*
+(GRADING) Tj T*
+(Homework 20% \(lowest homework score is dropped\)) Tj T*
+(Quizzes 10%) Tj T*
+(Midterm Exam 30%) Tj T*
+(Final Exam 40%) Tj T*
+(Grading scale: A 93+, A- 90, B+ 87, B 83, B- 80, C+ 77, C 73, below 70 is not passing.) Tj T*
+() Tj T*
+(IMPORTANT DATES) Tj T*
+(Midterm Exam: Thursday, October 15, 2026, 6:00 PM) Tj T*
+(Fall Break: November 25 - November 29, 2026 \(no class\)) Tj T*
+(Final Exam: Monday, December 14, 2026, 8:00 AM) Tj T*
+(Project proposal due: October 1, 2026) Tj T*
+(Homework is assigned weekly and posted on Canvas. Due dates are announced there.) Tj T*
+() Tj T*
+(POLICIES) Tj T*
+(Late work: 10% penalty per day, up to 3 days. After 3 days no credit.) Tj T*
+(Attendance: Not graded, but strongly encouraged.) Tj T*
+(Extra credit: Up to 2 bonus points on the final exam for course evaluations.) Tj T*
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000001527 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1597
+%%EOF

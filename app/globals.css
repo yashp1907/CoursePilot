@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8f9fb;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --muted: #f1f3f7;
+  --muted-foreground: #64748b;
+  --border: #e4e7ee;
+  --input: #d9dde7;
+  --primary: #2f5bea;
+  --primary-hover: #2549c4;
+  --primary-foreground: #ffffff;
+  --primary-soft: #eaf0ff;
+  --accent: #eef1f7;
+  --destructive: #dc2626;
+  --success: #15803d;
+  --warning: #b45309;
+  --ring: #2f5bea;
+  --sidebar: #ffffff;
+  --radius: 0.625rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0b0e14;
+    --foreground: #e6e9f0;
+    --card: #12161f;
+    --card-foreground: #e6e9f0;
+    --muted: #181d28;
+    --muted-foreground: #8b94a7;
+    --border: #232a38;
+    --input: #2d3546;
+    --primary: #5b82ff;
+    --primary-hover: #7898ff;
+    --primary-foreground: #0b0e14;
+    --primary-soft: #18223f;
+    --accent: #1a2030;
+    --destructive: #f87171;
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --ring: #5b82ff;
+    --sidebar: #0f131b;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-accent: var(--accent);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* { border-color: var(--border); }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-feature-settings: "cv11", "ss01";
+}
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
