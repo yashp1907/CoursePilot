@@ -31,4 +31,5 @@ export const NAV: NavSection[] = [
   },
 ];
 
-export const MOBILE_TABS = [NAV[0].items[0], NAV[0].items[1], NAV[0].items[2], NAV[0].items[3], NAV[0].items[4]];
+// Four primary tabs; everything else lives behind "More" (the full menu).
+export const MOBILE_TABS = [NAV[0].items[0], NAV[0].items[1], NAV[0].items[2], NAV[0].items[3]];

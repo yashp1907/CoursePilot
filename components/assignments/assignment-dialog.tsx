@@ -43,7 +43,7 @@ function DialogBody(props: Props) {
     <DialogContent
       title={viewing ? "Assignment details" : assignment ? "Edit assignment" : "New assignment"}
       description={viewing ? undefined : fromSync ? `Imported from ${assignment!.source}. Your edits are kept.` : "Add coursework or a personal study task."}
-      className={viewing ? "[&>div:first-child]:sr-only" : undefined}
+      className={viewing ? "[&>[data-dialog-header]]:sr-only" : undefined}
     >
       {courses.length === 0 ? (
         <p className="text-sm text-muted-foreground">Create a course first, then you can add assignments to it.</p>

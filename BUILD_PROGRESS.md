@@ -103,3 +103,8 @@ Your school disables student access tokens, so Canvas can also be synced with a 
 ## Color themes and motion
 - 7 accent themes (Indigo, Ocean, Forest, Sunset, Rose, Violet, Graphite), each with a light and dark version that also re-tints the surfaces. Chosen in Settings → Appearance (`data-accent` on `<html>`, saved in `cp-accent`, applied before first paint). Contrast checked: text-on-surface ≥ 4.5:1 for every theme and mode.
 - Progressive CSS: aurora hero, pointer spotlight on cards, count-up numbers (`@property`), drawing rings/bars, shimmer skeletons, scroll-driven header, dot-grid backdrop. All respect "reduce motion".
+
+## Mobile / PWA
+- Installable PWA: `app/manifest.ts`, icons in `public/icons` (any + maskable + Apple), service worker `public/sw.js` (static assets + offline page only), offline page, in-app install banner and Settings → Install card (Android prompt / iOS instructions).
+- Touch UX: safe-area insets, bottom tab bar (Home, Courses, Assignments, Calendar, More), dialogs become bottom sheets on phones, 44px touch targets on coarse pointers, 16px inputs (no iOS zoom), pull-to-refresh, offline banner, collapsible filters, denser rows.
+- Verified in an iPhone-sized touch browser: no horizontal overflow on any page, SW activates and controls the page, offline navigation shows the offline page.

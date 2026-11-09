@@ -129,6 +129,8 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--primary); }
 .stagger > *:nth-child(2) { animation-delay: .06s; }
 .stagger > *:nth-child(3) { animation-delay: .12s; }
 .stagger > *:nth-child(n+4) { animation-delay: .18s; }
+@keyframes cp-sheet { from { translate: 0 100%; opacity: 1; } to { translate: 0 0; opacity: 1; } }
+.anim-sheet { animation: cp-sheet .28s cubic-bezier(.2, .8, .2, 1) !important; }
 .anim-fade { animation: cp-fade .15s ease-out; }
 .anim-pop { animation: cp-pop .18s cubic-bezier(.2,.8,.2,1); }
 .anim-rise { animation: cp-rise .28s cubic-bezier(.2,.8,.2,1) both; }
@@ -195,3 +197,15 @@ body::before {
 
 /* Nicer text caret + checkbox/radio rounding */
 input, textarea { caret-color: var(--primary); }
+
+/* ================= Mobile / installed-app behaviour ================= */
+html { -webkit-tap-highlight-color: transparent; }
+a, button, [role="button"], [role="tab"], [role="radio"], summary, label, input, select, textarea { touch-action: manipulation; }
+/* iOS zooms the page when a focused field is under 16px: keep fields at 16px on phones. */
+@media (max-width: 639px) { input:not([type="checkbox"]):not([type="radio"]), select, textarea { font-size: 16px !important; } }
+/* Standalone (installed): no rubber-band over-scroll, no accidental text selection on chrome, no tap-hold callouts. */
+@media (display-mode: standalone) {
+  html { overscroll-behavior-y: none; }
+  nav, header, button { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+}
+@media (max-width: 639px) { body::before { display: none; } }

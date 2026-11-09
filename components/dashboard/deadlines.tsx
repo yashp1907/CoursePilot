@@ -60,7 +60,7 @@ export function UpcomingDeadlines({ assignments, courses }: { assignments: Assig
               const c = byId.get(a.course_id); const st = displayStatus(a);
               return (
                 <li key={a.id} className="group flex items-center gap-3 px-5 py-3 transition-colors hover:bg-accent/40" style={{ boxShadow: `inset 3px 0 0 ${courseHex(c?.color)}` }}>
-                  <button aria-label={`Mark "${a.title}" complete`} className="group/check relative text-muted-foreground transition hover:text-success cursor-pointer"
+                  <button aria-label={`Mark "${a.title}" complete`} className="group/check relative -m-2 p-2 text-muted-foreground transition hover:text-success cursor-pointer"
                     onClick={() => { setGone((s) => new Set(s).add(a.id)); start(async () => { const r = await run(setAssignmentStatus(a.id, "completed"), "Marked complete"); if (!r.ok) setGone((s) => { const n = new Set(s); n.delete(a.id); return n; }); }); }}>
                     <Circle className="size-5" /><Check className="absolute inset-0 m-auto size-3 scale-50 opacity-0 transition-all group-hover/check:scale-100 group-hover/check:opacity-100" strokeWidth={3} />
                   </button>

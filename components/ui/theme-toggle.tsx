@@ -26,7 +26,7 @@ export function ThemeToggle() {
   return (
     <div ref={ref} className="relative">
       <button onClick={() => setOpen((o) => !o)} aria-haspopup="menu" aria-expanded={open} aria-label="Change appearance" title="Appearance"
-        className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground cursor-pointer">
+        className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground cursor-pointer pointer-coarse:size-11">
         <Icon className="size-[18px]" suppressHydrationWarning />
       </button>
       {open && (

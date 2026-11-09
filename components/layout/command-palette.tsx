@@ -17,7 +17,7 @@ export function CommandPalette({ open, onOpenChange, courses, assignments, actio
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent title="Search and jump" description="Find pages, courses and assignments, or run an action." className="top-[20%] max-w-xl translate-y-0 p-0 [&>div:first-child]:sr-only">
+      <DialogContent sheet={false} title="Search and jump" description="Find pages, courses and assignments, or run an action." className="top-[20%] max-w-xl translate-y-0 p-0 [&>[data-dialog-header]]:sr-only">
         <PaletteBody close={() => onOpenChange(false)} courses={courses} assignments={assignments} actions={actions} onOpenAssignment={onOpenAssignment} />
       </DialogContent>
     </Dialog>

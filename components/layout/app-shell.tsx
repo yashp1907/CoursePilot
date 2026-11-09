@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { CalendarPlus, ChevronDown, LogOut, Menu, Moon, Plus, Search, Sun, X } from "lucide-react";
+import { CalendarPlus, ChevronDown, LogOut, Menu, MoreHorizontal, Plus, Search, WifiOff, X } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -18,7 +18,9 @@ import { pingExtension } from "@/lib/canvas/extension-bridge";
 import { AssignmentDialog } from "@/components/assignments/assignment-dialog";
 import { CourseFormDialog } from "@/components/courses/course-form-dialog";
 import { EventDialog } from "@/components/calendar/event-dialog";
+import { InstallBanner } from "@/components/ui/install-app";
 import { CommandPalette } from "./command-palette";
+import { PullToRefresh } from "./pull-to-refresh";
 import { NotificationBell, type NotificationItem } from "./notification-bell";
 import { MOBILE_TABS, NAV } from "./nav";
 import type { Assignment, Course, GradingCategoryRow } from "@/types/database";
@@ -48,7 +50,7 @@ function NavList({ courses, onNavigate, badges }: { courses: Course[]; onNavigat
                 <li key={item.href}>
                   <div className="flex items-center">
                     <NavLink href={item.href} onClick={onNavigate} aria-current={pathname === item.href ? "page" : undefined} title={item.hint}
-                      className={cn("relative flex flex-1 items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors", active && (!isCourses || pathname === "/courses") ? "bg-primary-soft text-primary before:absolute before:-left-3 before:top-2 before:bottom-2 before:w-[3px] before:rounded-r-full before:bg-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground")}>
+                      className={cn("relative flex flex-1 items-center gap-2.5 rounded-lg px-2.5 py-2 pointer-coarse:py-2.5 text-sm font-medium transition-colors", active && (!isCourses || pathname === "/courses") ? "bg-primary-soft text-primary before:absolute before:-left-3 before:top-2 before:bottom-2 before:w-[3px] before:rounded-r-full before:bg-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground")}>
                       <item.icon className="size-[17px]" /><span className="flex-1">{item.label}</span>
                       {badges[item.href] && <span className={cn("min-w-5 rounded-full px-1.5 py-px text-center text-[11px] font-semibold tabular-nums", badges[item.href].tone === "danger" ? "bg-destructive/15 text-destructive" : "bg-muted text-muted-foreground")} aria-label={`${badges[item.href].n} ${badges[item.href].tone === "danger" ? "overdue" : "due soon"}`}>{badges[item.href].n}</span>}
                     </NavLink>
@@ -101,6 +103,12 @@ export function AppShell({ name, email, courses, categories, openAssignments, no
   const [menu, setMenu] = useState(false);
   const [seenPath, setSeenPath] = useState(pathname);
   if (seenPath !== pathname) { setSeenPath(pathname); setMenu(false); }
+  const [offline, setOffline] = useState(false);
+  useEffect(() => {
+    const sync = () => setOffline(!navigator.onLine);
+    sync(); window.addEventListener("online", sync); window.addEventListener("offline", sync);
+    return () => { window.removeEventListener("online", sync); window.removeEventListener("offline", sync); };
+  }, []);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [assignDlg, setAssignDlg] = useState<{ open: boolean; assignment: Assignment | null }>({ open: false, assignment: null });
@@ -187,37 +195,45 @@ export function AppShell({ name, email, courses, categories, openAssignments, no
       </aside>
 
       <div className="lg:pl-60">
-        <header className="scroll-header sticky top-0 z-20 flex h-14 items-center gap-2 border-b bg-sidebar/80 px-3 backdrop-blur-xl sm:px-6">
-          <button onClick={() => setMenu(true)} className="rounded-md p-2 hover:bg-accent cursor-pointer lg:hidden" aria-label="Open menu"><Menu className="size-5" /></button>
+        <header className="scroll-header sticky top-0 z-20 flex h-[calc(3.5rem+env(safe-area-inset-top))] items-center gap-2 border-b bg-sidebar/80 px-3 pt-[env(safe-area-inset-top)] backdrop-blur-xl sm:px-6">
+          <button onClick={() => setMenu(true)} className="rounded-md p-2 pointer-coarse:p-2.5 hover:bg-accent cursor-pointer lg:hidden" aria-label="Open menu"><Menu className="size-5" /></button>
           <Link href="/dashboard" className="lg:hidden" aria-label="CoursePilot home"><Logo /></Link>
           <div className="hidden flex-1 lg:block">{SearchButton}</div>
           {semester && <span className="hidden text-xs text-muted-foreground xl:block">{semester}</span>}
           <div className="ml-auto flex items-center gap-1.5">
-            <button onClick={() => setPaletteOpen(true)} className="rounded-md p-2 text-muted-foreground hover:bg-accent cursor-pointer lg:hidden" aria-label="Search"><Search className="size-[18px]" /></button>
+            <button onClick={() => setPaletteOpen(true)} className="rounded-md p-2 pointer-coarse:p-2.5 text-muted-foreground hover:bg-accent cursor-pointer lg:hidden" aria-label="Search"><Search className="size-[18px]" /></button>
             {QuickAdd}
             <ThemeToggle />
             <NotificationBell items={notifications} />
           </div>
         </header>
 
-        <main id="main" className="mx-auto w-full max-w-6xl px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:py-9 lg:pb-9">{children}</main>
+        {offline && <div role="status" className="flex items-center justify-center gap-2 bg-warning/15 px-3 py-1.5 text-xs font-medium text-warning"><WifiOff className="size-3.5" /> You&apos;re offline. Changes can&apos;t be saved until you reconnect.</div>}
+        <main id="main" className="mx-auto w-full max-w-6xl px-4 py-5 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8 lg:py-9 lg:pb-9">
+          <InstallBanner />
+          {children}
+        </main>
       </div>
 
       <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t bg-sidebar/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden" aria-label="Primary">
         {MOBILE_TABS.map((t) => {
           const active = pathname === t.href || pathname.startsWith(t.href + "/");
           return (
-            <NavLink key={t.href} href={t.href} aria-current={active ? "page" : undefined} className={cn("flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium", active ? "text-primary" : "text-muted-foreground")}>
-              <t.icon className="size-5" />{t.label.replace("My ", "")}
+            <NavLink key={t.href} href={t.href} aria-current={active ? "page" : undefined} className={cn("group relative flex min-h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-medium transition-colors active:scale-95", active ? "text-primary" : "text-muted-foreground")}>
+              <span className={cn("flex h-7 w-12 items-center justify-center rounded-full transition-colors", active && "bg-primary-soft")}><t.icon className="size-[22px]" strokeWidth={active ? 2.25 : 1.75} /></span>
+              {t.label.replace("My ", "").replace("Overview", "Home")}
             </NavLink>
           );
         })}
+        <button onClick={() => setMenu(true)} className={cn("flex min-h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-medium text-muted-foreground transition-colors active:scale-95 cursor-pointer")} aria-label="More: all sections">
+          <span className="flex h-7 w-12 items-center justify-center rounded-full"><MoreHorizontal className="size-[22px]" strokeWidth={1.75} /></span>More
+        </button>
       </nav>
 
       {menu && (
         <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm anim-fade" onClick={() => setMenu(false)} />
-          <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-sidebar shadow-xl">
+          <div className="absolute inset-y-0 left-0 flex w-80 max-w-[88vw] flex-col bg-sidebar pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] shadow-xl">
             <div className="flex h-14 items-center justify-between border-b px-5"><Logo /><button onClick={() => setMenu(false)} className="rounded-md p-1.5 hover:bg-accent cursor-pointer" aria-label="Close menu"><X className="size-4" /></button></div>
             <NavList courses={courses} onNavigate={() => setMenu(false)} badges={badges} />
             <UserFooter name={name} email={email} />
@@ -225,6 +241,7 @@ export function AppShell({ name, email, courses, categories, openAssignments, no
         </div>
       )}
 
+      <PullToRefresh />
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} courses={courses} assignments={openAssignments} actions={actions} onOpenAssignment={(a) => setAssignDlg({ open: true, assignment: a })} />
       <AssignmentDialog open={assignDlg.open} onOpenChange={(o) => setAssignDlg((d) => ({ ...d, open: o }))} courses={courses} categories={categories} assignment={assignDlg.assignment} />
       <CourseFormDialog open={courseDlg} onOpenChange={setCourseDlg} defaultSemester={semester} />

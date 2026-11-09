@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState, useTransition } from "react";
 import { addMonths, format, startOfMonth } from "date-fns";
-import { ArrowDown, ArrowUp, CalendarDays, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Circle, KanbanSquare, List, Plus, Search, X } from "lucide-react";
+import { ArrowDown, ArrowUp, CalendarDays, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Circle, KanbanSquare, List, Plus, Search, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input, NativeSelect } from "@/components/ui/input";
@@ -50,6 +50,8 @@ export function AssignmentsView({ assignments, courses, categories, lockedCourse
   const filtered = useMemo(() => filterAssignments(effective, filters), [effective, filters]);
   const sorted = useMemo(() => sortAssignments(filtered, sort.key, sort.dir, courses), [filtered, sort, courses]);
   const hasFilters = JSON.stringify({ ...filters, course: lockedCourseId ? "" : filters.course }) !== JSON.stringify({ ...EMPTY_FILTERS });
+  const [showFilters, setShowFilters] = useState(false);
+  const activeFilters = [lockedCourseId ? "" : filters.course, filters.status, filters.priority, filters.type, filters.from, filters.to].filter(Boolean).length;
   const setF = (k: keyof Filters, v: string) => setFilters((p) => ({ ...p, [k]: v }));
 
   function changeStatus(a: Assignment, status: AssignmentStatus) {
@@ -95,17 +97,19 @@ export function AssignmentsView({ assignments, courses, categories, lockedCourse
     const st = displayStatus(a); const c = courseMap.get(a.course_id); const done = st === "completed" || st === "submitted";
     return (
       <li key={a.id} className="grid grid-cols-[2rem_1fr] items-center gap-x-3 gap-y-1 px-4 py-2.5 hover:bg-accent/40 md:grid-cols-[2rem_1fr_7rem_10rem_6rem_6rem]">
-        <button onClick={() => toggle(a)} aria-label={done ? `Mark "${a.title}" not done` : `Mark "${a.title}" complete`} className="text-muted-foreground hover:text-primary cursor-pointer">
+        <button onClick={() => toggle(a)} aria-label={done ? `Mark "${a.title}" not done` : `Mark "${a.title}" complete`} className="-m-2 p-2 text-muted-foreground hover:text-primary cursor-pointer">
           {done ? <CheckCircle2 className="size-5 text-success" /> : <Circle className="size-5" />}
         </button>
         <button onClick={() => open(a)} className="min-w-0 text-left cursor-pointer">
           <p className={cn("truncate text-sm font-medium", done && "text-muted-foreground line-through")}>{a.title}</p>
           <p className="truncate text-xs text-muted-foreground">{TYPE_LABEL[a.type]}{a.points_possible !== null ? ` · ${a.points_possible} pts` : ""}{a.estimated_minutes ? ` · ~${a.estimated_minutes} min` : ""}{a.source !== "manual" ? ` · from ${a.source}` : ""}</p>
         </button>
-        <span className="col-start-2 flex md:col-start-auto"><CourseChip color={c?.color} label={c?.code ?? c?.name ?? "Course"} /></span>
-        <span className={cn("col-start-2 text-xs md:col-start-auto", st === "overdue" ? "font-medium text-destructive" : "text-muted-foreground")}>{formatDue(a.due_at)}</span>
-        <span className="col-start-2 md:col-start-auto"><Badge variant={STATUS_VARIANT[st]}>{STATUS_LABEL[st]}</Badge></span>
-        <span className="col-start-2 md:col-start-auto"><Badge variant={PRIORITY_VARIANT[a.priority]} className="capitalize">{a.priority}</Badge></span>
+        <div className="col-start-2 flex flex-wrap items-center gap-x-2 gap-y-1 md:contents">
+          <span className="flex"><CourseChip color={c?.color} label={c?.code ?? c?.name ?? "Course"} /></span>
+          <span className={cn("text-xs", st === "overdue" ? "font-medium text-destructive" : "text-muted-foreground")}>{formatDue(a.due_at)}</span>
+          <span><Badge variant={STATUS_VARIANT[st]}>{STATUS_LABEL[st]}</Badge></span>
+          <span><Badge variant={PRIORITY_VARIANT[a.priority]} className="capitalize">{a.priority}</Badge></span>
+        </div>
       </li>
     );
   };
@@ -116,7 +120,7 @@ export function AssignmentsView({ assignments, courses, categories, lockedCourse
     <div className="space-y-4">
       <DuplicatesBanner pairs={dupPairs} courses={courses} />
       <div className="flex flex-wrap items-center gap-2">
-        <div className="inline-flex rounded-md border bg-card p-0.5" role="tablist" aria-label="View">
+        <div className="inline-flex rounded-md border bg-card p-0.5 max-sm:order-1" role="tablist" aria-label="View">
           {([["list", List, "List"], ["kanban", KanbanSquare, "Board"], ["calendar", CalendarDays, "Calendar"]] as const).map(([v, Icon, label]) => (
             <button key={v} role="tab" aria-selected={view === v} onClick={() => setView(v)}
               className={cn("inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-sm font-medium cursor-pointer", view === v ? "bg-primary-soft text-primary" : "text-muted-foreground hover:text-foreground")}>
@@ -124,14 +128,17 @@ export function AssignmentsView({ assignments, courses, categories, lockedCourse
             </button>
           ))}
         </div>
-        <div className="relative min-w-40 flex-1 sm:max-w-64">
+        <div className="relative min-w-40 flex-1 max-sm:order-3 sm:max-w-64">
           <Search className="pointer-events-none absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input className="pl-8" placeholder="Search…" aria-label="Search assignments" value={filters.q} onChange={(e) => setF("q", e.target.value)} />
         </div>
-        <Button className="ml-auto" onClick={() => open(null)}><Plus /> New assignment</Button>
+        <Button variant="outline" className="max-sm:order-4 md:hidden" onClick={() => setShowFilters((s) => !s)} aria-expanded={showFilters} aria-controls="assignment-filters">
+          <SlidersHorizontal />Filters{activeFilters > 0 && <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">{activeFilters}</span>}
+        </Button>
+        <Button className="ml-auto max-sm:order-2" onClick={() => open(null)}><Plus /> New<span className="max-sm:hidden"> assignment</span></Button>
       </div>
 
-      <div className="flex flex-wrap items-end gap-2">
+      <div id="assignment-filters" className={cn("flex-wrap items-end gap-2 max-md:rounded-xl max-md:border max-md:bg-card max-md:p-3 max-md:[&>*]:flex-1 max-md:[&_select]:w-full max-md:[&_input]:w-full", showFilters ? "flex" : "hidden md:flex")}>
         {!lockedCourseId && (
           <NativeSelect aria-label="Course" className="w-auto" value={filters.course} onChange={(e) => setF("course", e.target.value)}>
             <option value="">All courses</option>{courses.map((c) => <option key={c.id} value={c.id}>{c.code ?? c.name}</option>)}

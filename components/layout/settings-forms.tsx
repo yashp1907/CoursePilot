@@ -1,6 +1,7 @@
 "use client";
 import { useState, useTransition } from "react";
-import { Database, Palette, RotateCcw } from "lucide-react";
+import { Database, Palette, RotateCcw, Smartphone } from "lucide-react";
+import { InstallPanel } from "@/components/ui/install-app";
 import { AccentPicker, ThemePicker } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,6 +29,11 @@ export function SettingsForms({ profile, settings, hasDemo }: { profile: Profile
           <div><p className="mb-2 text-[13px] font-medium text-muted-foreground">Mode</p><ThemePicker /></div>
           <div><p className="mb-2 text-[13px] font-medium text-muted-foreground">Color theme</p><AccentPicker /></div>
         </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><div><CardTitle className="flex items-center gap-2"><Smartphone className="size-4" /> Install on your phone</CardTitle><CardDescription>Use CoursePilot like a native app: home-screen icon, full screen, fast launch.</CardDescription></div></CardHeader>
+        <CardContent><InstallPanel /></CardContent>
       </Card>
 
       <Card>

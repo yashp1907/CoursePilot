@@ -1,7 +1,7 @@
 "use client";
 import { NavLink } from "@/components/ui/nav-link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Skeleton } from "@/components/ui/states";
 import { cn } from "@/lib/utils";
 
@@ -31,10 +31,12 @@ export function CourseTabs({ active, children }: { active: TabKey; children: Rea
   const [pending, start] = useTransition();
   const [target, setTarget] = useState<TabKey | null>(null);
   const shown = pending && target ? target : active;
+  const listRef = useRef<HTMLDivElement>(null);
+  useEffect(() => { listRef.current?.querySelector<HTMLElement>("[aria-selected=true]")?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" }); }, [shown]);
 
   return (
     <div>
-      <div role="tablist" aria-label="Course sections" className="flex gap-1 overflow-x-auto border-b">
+      <div ref={listRef} role="tablist" aria-label="Course sections" className="flex gap-1 overflow-x-auto border-b [scrollbar-width:none]">
         {TABS.map((t) => {
           const href = `${pathname}?tab=${t.value}`;
           return (

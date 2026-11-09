@@ -5,7 +5,7 @@ const field =
   "w-full rounded-lg border border-input bg-card px-3 text-sm shadow-[inset_0_1px_1px_rgba(16,24,40,0.03)] transition-colors hover:border-primary/40 placeholder:text-muted-foreground disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:border-ring";
 
 export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
-  ({ className, ...props }, ref) => <input ref={ref} className={cn(field, "h-9", className)} {...props} />,
+  ({ className, ...props }, ref) => <input ref={ref} className={cn(field, "h-9 pointer-coarse:h-11", className)} {...props} />,
 );
 Input.displayName = "Input";
 
@@ -15,6 +15,6 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTML
 Textarea.displayName = "Textarea";
 
 export const NativeSelect = React.forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement>>(
-  ({ className, ...props }, ref) => <select ref={ref} className={cn(field, "h-9 pr-8", className)} {...props} />,
+  ({ className, ...props }, ref) => <select ref={ref} className={cn(field, "h-9 pr-8 pointer-coarse:h-11", className)} {...props} />,
 );
 NativeSelect.displayName = "NativeSelect";
