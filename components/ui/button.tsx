@@ -5,15 +5,15 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 cursor-pointer [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-150 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 cursor-pointer [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm",
-        outline: "border border-input bg-card hover:bg-accent",
+        default: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-[0_1px_2px_rgba(16,24,40,0.15),inset_0_1px_0_rgba(255,255,255,0.12)] hover:shadow-[0_6px_16px_-6px_color-mix(in_srgb,var(--primary)_70%,transparent),inset_0_1px_0_rgba(255,255,255,0.12)]",
+        outline: "border border-input bg-card shadow-[var(--shadow-card)] hover:bg-accent hover:border-primary/30",
         ghost: "hover:bg-accent",
-        destructive: "bg-destructive text-white hover:opacity-90",
-        soft: "bg-primary-soft text-primary hover:opacity-80",
+        destructive: "bg-destructive text-white shadow-sm hover:opacity-90",
+        soft: "bg-primary-soft text-primary hover:bg-primary/15",
       },
       size: { default: "h-9 px-3.5", sm: "h-8 px-3 text-xs", lg: "h-10 px-5", icon: "size-9" },
     },

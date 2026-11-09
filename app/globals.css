@@ -1,49 +1,73 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 :root {
-  --background: #f8f9fb;
-  --foreground: #0f172a;
+  color-scheme: light;
+  --background: #f6f7f9;
+  --foreground: #12151c;
   --card: #ffffff;
-  --card-foreground: #0f172a;
-  --muted: #f1f3f7;
-  --muted-foreground: #64748b;
-  --border: #e4e7ee;
-  --input: #d9dde7;
-  --primary: #2f5bea;
-  --primary-hover: #2549c4;
+  --card-foreground: #12151c;
+  --muted: #eff1f4;
+  --muted-foreground: #5b6474;
+  --border: #e3e6eb;
+  --input: #d3d8e0;
+  --primary: #3d52e0;
+  --primary-hover: #3043c4;
   --primary-foreground: #ffffff;
-  --primary-soft: #eaf0ff;
-  --accent: #eef1f7;
-  --destructive: #dc2626;
-  --success: #15803d;
+  --primary-soft: #ecefff;
+  --accent: #eff1f5;
+  --destructive: #d92d20;
+  --success: #17803d;
   --warning: #b45309;
-  --ring: #2f5bea;
+  --ring: #3d52e0;
   --sidebar: #ffffff;
-  --radius: 0.625rem;
+  --radius: 0.75rem;
+  --brand-bright: #8c9bf5;
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.04);
+  --shadow-lift: 0 6px 16px -4px rgba(16, 24, 40, 0.10), 0 2px 4px -2px rgba(16, 24, 40, 0.05);
+  --shadow-pop: 0 16px 36px -8px rgba(16, 24, 40, 0.20), 0 4px 10px -4px rgba(16, 24, 40, 0.08);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0b0e14;
-    --foreground: #e6e9f0;
-    --card: #12161f;
-    --card-foreground: #e6e9f0;
-    --muted: #181d28;
-    --muted-foreground: #8b94a7;
-    --border: #232a38;
-    --input: #2d3546;
-    --primary: #5b82ff;
-    --primary-hover: #7898ff;
-    --primary-foreground: #0b0e14;
-    --primary-soft: #18223f;
-    --accent: #1a2030;
-    --destructive: #f87171;
-    --success: #4ade80;
-    --warning: #fbbf24;
-    --ring: #5b82ff;
-    --sidebar: #0f131b;
-  }
+/* Dark: neutral graphite (barely cool), layered by lightness so surfaces separate without heavy borders. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #0e1014;
+  --foreground: #e8e9ed;
+  --card: #16181d;
+  --card-foreground: #e8e9ed;
+  --muted: #1d2026;
+  --muted-foreground: #9a9fab;
+  --border: #272a31;
+  --input: #343842;
+  --primary: #8c9bf5;
+  --primary-hover: #a3b0f8;
+  --primary-foreground: #0e1014;
+  --primary-soft: #232842;
+  --accent: #1f2229;
+  --destructive: #f2766b;
+  --success: #5fcf8a;
+  --warning: #f0b84a;
+  --ring: #8c9bf5;
+  --sidebar: #121418;
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-lift: 0 8px 20px -6px rgba(0, 0, 0, 0.5);
+  --shadow-pop: 0 18px 44px -10px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
+
+/* ---------- Accent themes: each re-tints the surfaces too, so the whole app shifts, not just the buttons. ---------- */
+:root[data-accent="ocean"] { --background: #f2f7fa; --muted: #e9f0f4; --border: #dce6ec; --input: #c9d7e0; --accent: #e8f0f5; --primary: #0b72a8; --primary-hover: #095e8a; --primary-soft: #e3f2fa; --ring: #0b72a8; --brand-bright: #5cc2ee; }
+:root[data-accent="ocean"][data-theme="dark"] { --background: #0a1114; --card: #101a1e; --muted: #162228; --border: #203038; --input: #2d4048; --accent: #18262c; --primary: #5cc2ee; --primary-hover: #7fd0f3; --primary-soft: #12303d; --ring: #5cc2ee; --sidebar: #0d1519; }
+:root[data-accent="forest"] { --background: #f3f7f4; --muted: #e9f0eb; --border: #dce6df; --input: #c8d7cd; --accent: #e8f0ea; --primary: #25774a; --primary-hover: #1d6039; --primary-soft: #e2f3e8; --ring: #25774a; --brand-bright: #6fcf97; }
+:root[data-accent="forest"][data-theme="dark"] { --background: #0b110e; --card: #121a15; --muted: #18221c; --border: #223027; --input: #2e4036; --accent: #1a261f; --primary: #6fcf97; --primary-hover: #8ddcad; --primary-soft: #153322; --ring: #6fcf97; --sidebar: #0e1511; }
+:root[data-accent="sunset"] { --background: #faf6f2; --muted: #f3ece5; --border: #e9dfd5; --input: #dccfc2; --accent: #f3ebe3; --primary: #b04516; --primary-hover: #943a12; --primary-soft: #fdeadf; --ring: #b04516; --brand-bright: #f29a66; }
+:root[data-accent="sunset"][data-theme="dark"] { --background: #12100d; --card: #1a1713; --muted: #221e19; --border: #302a23; --input: #403830; --accent: #251f1a; --primary: #f29a66; --primary-hover: #f6b085; --primary-soft: #3a2417; --ring: #f29a66; --sidebar: #15120f; }
+:root[data-accent="rose"] { --background: #faf5f7; --muted: #f3ebef; --border: #eadfe4; --input: #dccdd4; --accent: #f3eaee; --primary: #be2f5c; --primary-hover: #a0254b; --primary-soft: #fde6ee; --ring: #be2f5c; --brand-bright: #f38aa9; }
+:root[data-accent="rose"][data-theme="dark"] { --background: #130f11; --card: #1a1518; --muted: #221b1f; --border: #31262b; --input: #413339; --accent: #261d22; --primary: #f38aa9; --primary-hover: #f6a3bb; --primary-soft: #3b1b28; --ring: #f38aa9; --sidebar: #161114; }
+:root[data-accent="violet"] { --background: #f7f5fb; --muted: #efebf6; --border: #e3deee; --input: #d1c9e2; --accent: #eeeaf6; --primary: #6b3fd4; --primary-hover: #5833b3; --primary-soft: #efe8fd; --ring: #6b3fd4; --brand-bright: #b39bf8; }
+:root[data-accent="violet"][data-theme="dark"] { --background: #100e15; --card: #17141d; --muted: #1e1a26; --border: #2a2535; --input: #3a3348; --accent: #221e2c; --primary: #b39bf8; --primary-hover: #c4b2fa; --primary-soft: #2b2150; --ring: #b39bf8; --sidebar: #131018; }
+:root[data-accent="graphite"] { --background: #f5f5f5; --muted: #ececec; --border: #e1e1e1; --input: #cfcfcf; --accent: #ececec; --primary: #262a33; --primary-hover: #14171d; --primary-soft: #e9eaec; --ring: #262a33; --brand-bright: #e6e7ea; }
+:root[data-accent="graphite"][data-theme="dark"] { --background: #0f0f10; --card: #171718; --muted: #1f1f21; --border: #2a2a2d; --input: #39393d; --accent: #232326; --primary: #e6e7ea; --primary-hover: #ffffff; --primary-soft: #2a2b30; --ring: #e6e7ea; --sidebar: #131314; }
 
 @theme inline {
   --color-background: var(--background);
@@ -72,11 +96,102 @@
 }
 
 * { border-color: var(--border); }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
 }
-:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+::selection { background: color-mix(in srgb, var(--primary) 25%, transparent); }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-radius: 4px; }
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--primary); }
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Theme switch: the browser snapshots the page and cross-fades to the new theme on the GPU
+   (View Transitions), so there is no per-element repaint. While it runs, element transitions are
+   paused so nothing animates twice. */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .35s; animation-timing-function: ease-in-out; }
+.theme-switching *, .theme-switching *::before, .theme-switching *::after { transition: none !important; }
+
+/* Slim, theme-aware scrollbars */
+* { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--muted-foreground) 35%, transparent) transparent; }
+
+/* Dialog + menu motion */
+@keyframes cp-fade { from { opacity: 0; } to { opacity: 1; } }
+/* Use the standalone `scale`/`translate` properties: Tailwind v4 positions elements with `translate`, so animating `transform` would stack on top of it. */
+@keyframes cp-pop { from { opacity: 0; scale: .96; } to { opacity: 1; scale: 1; } }
+@keyframes cp-rise { from { opacity: 0; translate: 0 6px; } to { opacity: 1; translate: none; } }
+.stagger > * { animation: cp-rise .4s cubic-bezier(.2,.8,.2,1) both; }
+.stagger > *:nth-child(2) { animation-delay: .06s; }
+.stagger > *:nth-child(3) { animation-delay: .12s; }
+.stagger > *:nth-child(n+4) { animation-delay: .18s; }
+.anim-fade { animation: cp-fade .15s ease-out; }
+.anim-pop { animation: cp-pop .18s cubic-bezier(.2,.8,.2,1); }
+.anim-rise { animation: cp-rise .28s cubic-bezier(.2,.8,.2,1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+/* ================= Depth & motion (all progressive: unsupported browsers just see the plain version) ================= */
+
+/* A faint dot grid that fades out down the page: gives the background texture without noise. */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: radial-gradient(color-mix(in srgb, var(--foreground) 11%, transparent) 1px, transparent 1.3px);
+  background-size: 26px 26px;
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent 440px);
+  mask-image: linear-gradient(to bottom, #000, transparent 440px);
+}
+
+/* Aurora: two slow-drifting washes of the accent behind a hero surface. */
+.aurora { position: relative; isolation: isolate; overflow: hidden; }
+.aurora::before {
+  content: ""; position: absolute; inset: -45%; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(38% 34% at 18% 32%, color-mix(in srgb, var(--primary) 20%, transparent), transparent 72%),
+    radial-gradient(34% 38% at 82% 68%, color-mix(in srgb, var(--primary) 12%, transparent), transparent 72%);
+  animation: cp-drift 26s ease-in-out infinite alternate;
+}
+@keyframes cp-drift { from { transform: translate3d(-2%, -1%, 0) rotate(0deg) scale(1); } to { transform: translate3d(3%, 2%, 0) rotate(8deg) scale(1.06); } }
+
+/* Spotlight: a soft highlight that follows the pointer across interactive cards (position set by <Spotlight/>). */
+.spotlight { position: relative; }
+.spotlight::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s ease;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--primary) 11%, transparent), transparent 70%);
+}
+@media (hover: hover) { .spotlight:hover::after { opacity: 1; } }
+
+/* Count-up numbers: --n is a registered integer, so the browser interpolates it and the counter renders it. */
+@property --n { syntax: "<integer>"; initial-value: 0; inherits: false; }
+.countup { animation: cp-count 1s cubic-bezier(.2, .8, .2, 1) both; counter-reset: n var(--n); }
+.countup::before { content: counter(n); }
+@keyframes cp-count { from { --n: 0; } to { --n: var(--to); } }
+
+/* Rings and bars draw in on load. */
+.ring-arc { animation: cp-arc 1s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes cp-arc { from { stroke-dasharray: 0 999; } }
+.bar-grow { transform-origin: left; animation: cp-grow .9s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes cp-grow { from { scale: 0 1; } }
+
+/* Shimmering skeletons instead of a flat pulse. */
+.skeleton {
+  background: linear-gradient(100deg, var(--muted) 30%, color-mix(in srgb, var(--muted) 50%, var(--card)) 50%, var(--muted) 70%);
+  background-size: 220% 100%; animation: cp-shimmer 1.5s linear infinite;
+}
+@keyframes cp-shimmer { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+
+/* Header: flat at the top of the page, gains a hairline and soft shadow as you scroll (pure CSS scroll-driven animation). */
+@supports (animation-timeline: scroll()) {
+  .scroll-header { border-color: transparent; animation: cp-hdr linear both; animation-timeline: scroll(root block); animation-range: 0 90px; }
+  @keyframes cp-hdr { to { border-color: var(--border); box-shadow: 0 10px 24px -18px rgba(0, 0, 0, 0.35); } }
+}
+
+/* Nicer text caret + checkbox/radio rounding */
+input, textarea { caret-color: var(--primary); }

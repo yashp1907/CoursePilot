@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CornerDownLeft, FileText, Plus, RefreshCw, Search } from "lucide-react";
+import { CornerDownLeft, FileText, Moon, Plus, RefreshCw, Search, Sun } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CourseDot } from "@/components/ui/course-dot";
 import { cn } from "@/lib/utils";
@@ -33,7 +33,7 @@ function PaletteBody({ close, courses, assignments, actions, onOpenAssignment }:
 
   const entries = useMemo(() => {
     const all: Entry[] = [
-      ...actions.map((a) => ({ id: `act:${a.id}`, group: "Actions", label: a.label, icon: a.id === "sync" ? <RefreshCw className="size-4" /> : <Plus className="size-4" />, run: () => { close(); a.run(); } })),
+      ...actions.map((a) => ({ id: `act:${a.id}`, group: "Actions", label: a.label, icon: a.id === "sync" ? <RefreshCw className="size-4" /> : a.id === "theme" ? <><Moon className="size-4 dark:hidden" /><Sun className="hidden size-4 dark:block" /></> : <Plus className="size-4" />, run: () => { close(); a.run(); } })),
       ...NAV.flatMap((s) => s.items).map((i) => ({ id: `nav:${i.href}`, group: "Go to", label: i.label, sub: i.hint, icon: <i.icon className="size-4" />, run: go(i.href) })),
       ...courses.map((c) => ({ id: `c:${c.id}`, group: "Courses", label: `${c.code ? c.code + " · " : ""}${c.name}`, icon: <CourseDot color={c.color} />, run: go(`/courses/${c.id}`) })),
       ...courses.flatMap((c) => [
@@ -74,7 +74,7 @@ function PaletteBody({ close, courses, assignments, actions, onOpenAssignment }:
             <li key={e.id} role="presentation">
               {header && <p className="px-2.5 pb-1 pt-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{header}</p>}
               <button data-i={i} role="option" aria-selected={i === idx} onMouseMove={() => setIdx(i)} onClick={e.run}
-                className={cn("flex w-full items-center gap-3 rounded-md px-2.5 py-2 text-left text-sm cursor-pointer", i === idx && "bg-primary-soft text-primary")}>
+                className={cn("flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left text-sm cursor-pointer", i === idx && "bg-primary-soft text-primary")}>
                 <span className="flex size-5 items-center justify-center text-muted-foreground">{e.icon}</span>
                 <span className="min-w-0 flex-1 truncate">{e.label}{e.sub && <span className="ml-2 text-xs text-muted-foreground">{e.sub}</span>}</span>
                 {i === idx && <CornerDownLeft className="size-3.5" />}

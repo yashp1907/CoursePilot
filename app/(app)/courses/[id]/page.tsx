@@ -31,8 +31,8 @@ export default async function CoursePage({ params, searchParams }: { params: Pro
     <>
       <Link href="/courses" className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ChevronLeft className="size-4" /> My Courses</Link>
       <div className="relative mb-6 overflow-hidden rounded-xl border bg-card">
-        <div className="h-1.5" style={{ background: `linear-gradient(90deg, ${courseHex(course.color)}, color-mix(in srgb, ${courseHex(course.color)} 45%, transparent))` }} />
-        <div className="flex flex-wrap items-start justify-between gap-3 p-5" style={{ backgroundImage: `linear-gradient(135deg, ${tint(course.color, 7)}, transparent 55%)` }}>
+        <div className="h-1" style={{ backgroundColor: courseHex(course.color) }} />
+        <div className="flex flex-wrap items-start justify-between gap-3 p-5" style={{ backgroundColor: tint(course.color, 5) }}>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <CourseChip color={course.color} label={course.code ?? "Course"} />

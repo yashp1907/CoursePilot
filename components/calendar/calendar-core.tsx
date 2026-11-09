@@ -53,7 +53,7 @@ function Chip({ item, onClick }: { item: CalItem; onClick: (i: CalItem) => void 
     <button
       onClick={(e) => { e.stopPropagation(); onClick(item); }}
       className={cn(
-        "flex w-full items-center gap-1 truncate rounded-md px-1.5 py-0.5 text-left text-xs font-medium cursor-pointer transition hover:brightness-95",
+        "flex w-full items-center gap-1 truncate rounded pl-2.5 pr-1.5 py-0.5 text-left text-xs font-medium cursor-pointer transition hover:brightness-95",
         item.done && "opacity-50 line-through",
       )}
       style={{ backgroundColor: tint(item.color, 16), color: readable(item.color), boxShadow: `inset 3px 0 0 ${item.color}` }}

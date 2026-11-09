@@ -46,7 +46,7 @@ export function CourseTabs({ active, children }: { active: TabKey; children: Rea
                 setTarget(t.value);
                 start(() => router.push(href, { scroll: false }));
               }}
-              className={cn("-mb-px whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium transition-colors", shown === t.value ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground")}>
+              className={cn("whitespace-nowrap rounded-t-md px-3.5 py-2.5 text-sm font-medium transition-colors", shown === t.value ? "text-primary shadow-[inset_0_-2px_0_0_var(--primary)]" : "text-muted-foreground hover:bg-accent/60 hover:text-foreground")}>
               {t.label}
             </NavLink>
           );

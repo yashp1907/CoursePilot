@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/ui/states";
 import { Button } from "@/components/ui/button";
 import { CourseCard } from "@/components/courses/course-card";
 import { UpcomingDeadlines, WeeklyOverview } from "@/components/dashboard/deadlines";
+import { Hero, type NextUp } from "@/components/dashboard/hero";
 import { TodayClasses } from "@/components/dashboard/today-classes";
 import { createClient } from "@/lib/supabase/server";
 import { courseInfoSchema } from "@/lib/course-info/schemas";
@@ -25,11 +26,13 @@ const TONES = {
 
 function Stat({ icon: Icon, label, value, sub, tone, href }: { icon: typeof BookOpen; label: string; value: string | number; sub?: string; tone: keyof typeof TONES; href?: string }) {
   const body = (
-    <Card className="h-full transition-shadow hover:shadow-md"><CardContent className="flex items-center gap-3.5 p-4">
-      <div className={cn("flex size-11 shrink-0 items-center justify-center rounded-xl", TONES[tone])}><Icon className="size-5" /></div>
+    <Card className="spotlight h-full transition-all hover:-translate-y-px hover:shadow-[var(--shadow-lift)]"><CardContent className="flex items-center gap-3 p-3.5 sm:gap-3.5 sm:p-4">
+      <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-xl sm:size-11", TONES[tone])}><Icon className="size-5" /></div>
       <div className="min-w-0">
         <p className="truncate text-[13px] font-medium text-muted-foreground">{label}</p>
-        <p className="text-2xl font-semibold leading-tight tracking-tight tabular-nums">{value}</p>
+        <p className="text-2xl font-semibold leading-tight tracking-tight tabular-nums">
+          {typeof value === "number" ? <><span className="countup" style={{ "--to": value } as React.CSSProperties} aria-hidden /><span className="sr-only">{value}</span></> : value}
+        </p>
         {sub && <p className="truncate text-xs text-muted-foreground">{sub}</p>}
       </div>
     </CardContent></Card>
@@ -40,7 +43,7 @@ function Stat({ icon: Icon, label, value, sub, tone, href }: { icon: typeof Book
 export default async function DashboardPage() {
   const supabase = await createClient();
   const [courses, categories, assignments, grades, activity, profile, { data: infoRows, error: infoErr }] = await Promise.all([
-    listCourses(), listCategories(), listAssignments(), listGrades(), listActivity(8), getProfile(),
+    listCourses(), listCategories(), listAssignments(), listGrades(), listActivity(5), getProfile(),
     supabase.from("course_info").select("course_id, info"),
   ]);
   const classItems = infoErr ? [] : (infoRows ?? []).flatMap((r) => { const p = r.info ? courseInfoSchema.safeParse(r.info) : null; return p?.success && p.data.meetings.length ? [{ courseId: r.course_id as string, meetings: p.data.meetings }] : []; });
@@ -51,22 +54,22 @@ export default async function DashboardPage() {
   const upcoming = open.filter((a) => new Date(a.due_at!) >= new Date(+now - 7 * 86_400_000)).sort((a, b) => +new Date(a.due_at!) - +new Date(b.due_at!)).slice(0, 8);
   const weekItems = assignments.filter((a) => a.due_at && new Date(a.due_at) >= new Date(+now - 86_400_000) && new Date(a.due_at) <= new Date(+now + 8 * 86_400_000));
   const first = profile?.full_name?.split(" ")[0];
+  const urgent = [...d.overdue].sort((x, y) => +new Date(x.due_at!) - +new Date(y.due_at!))[0] ?? upcoming.find((a) => new Date(a.due_at!) >= now);
+  const uc = urgent ? courses.find((c) => c.id === urgent.course_id) : undefined;
+  const nextUp: NextUp | null = urgent && urgent.due_at ? { title: urgent.title, dueAt: urgent.due_at, type: urgent.type, courseLabel: uc?.code ?? uc?.name ?? "Course", color: uc?.color ?? "blue" } : null;
 
   return (
     <>
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Welcome back{first ? `, ${first}` : ""}</h1>
-        <p className="mt-1 text-[15px] text-muted-foreground">
-          {courses.length === 0 ? "Your entire semester, under control." : d.overdue.length > 0 ? <><span className="font-medium text-destructive">{d.overdue.length} overdue</span> · start there, then {d.dueThisWeek.length} due this week.</> : d.dueThisWeek.length > 0 ? <>{d.dueThisWeek.length} thing{d.dueThisWeek.length === 1 ? "" : "s"} due in the next 7 days{profile?.current_semester ? ` · ${profile.current_semester}` : ""}.</> : "You're all caught up for the week."}
-        </p>
-      </div>
+      <Hero name={first} overdueCount={d.overdue.length} next={nextUp}
+        summary={courses.length === 0 ? "Your entire semester, under control." : d.overdue.length > 0 ? <><span className="font-medium text-destructive">{d.overdue.length} overdue</span> · start there{d.dueThisWeek.length > 0 ? `, then ${d.dueThisWeek.length} due this week` : ""}.</> : d.dueThisWeek.length > 0 ? <>{d.dueThisWeek.length} thing{d.dueThisWeek.length === 1 ? "" : "s"} due in the next 7 days{profile?.current_semester ? ` · ${profile.current_semester}` : ""}.</> : "You're all caught up for the week."} />
+      <div className="h-5" />
 
       {courses.length === 0 ? (
         <EmptyState icon={<Sparkles />} title="Let's set up your semester" description="Add your first course, or upload a syllabus and CoursePilot will pull out the grading breakdown and exam dates. Want to look around first? Load demo data from Settings."
           action={<div className="flex gap-2"><Button asChild><Link href="/courses">Add a course</Link></Button><Button asChild variant="outline"><Link href="/settings">Load demo data</Link></Button></div>} />
       ) : (
-        <div className="space-y-5">
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+        <div className="space-y-5 stagger">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5 [&>*:last-child:nth-child(odd)]:col-span-2 md:[&>*:last-child:nth-child(odd)]:col-span-1">
             <Stat icon={BookOpen} label="Active courses" value={d.activeCourses} tone="primary" href="/courses" />
             <Stat icon={ClipboardList} label="Due this week" value={d.dueThisWeek.length} sub="next 7 days" tone="amber" href="/assignments" />
             <Stat icon={AlertTriangle} label="Overdue" value={d.overdue.length} sub={d.overdue.length ? "needs attention" : "all clear"} tone={d.overdue.length ? "red" : "muted"} href="/assignments" />
@@ -113,7 +116,7 @@ export default async function DashboardPage() {
           </div>
 
           <div>
-            <h2 className="mb-3 text-sm font-semibold">Your courses</h2>
+            <h2 className="mb-3 flex items-baseline gap-2 text-base font-semibold tracking-tight">Your courses <span className="text-sm font-normal text-muted-foreground">{courses.length}</span></h2>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{summaries.map((s) => <CourseCard key={s.course.id} s={s} />)}</div>
           </div>
         </div>

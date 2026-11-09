@@ -9,7 +9,7 @@ export function GradeRing({ percent, letter, color, size = 64 }: { percent: numb
     <div className="relative shrink-0" style={{ width: size, height: size }} role="img" aria-label={percent === null ? "No grades yet" : `Current grade ${letter ?? ""} (${percent.toFixed(1)} percent)`}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--muted)" strokeWidth="6" strokeDasharray={percent === null ? "3 5" : undefined} />
-        {percent !== null && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={hex} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${(pct / 100) * c} ${c}`} />}
+        {percent !== null && <circle className="ring-arc" cx={size / 2} cy={size / 2} r={r} fill="none" stroke={hex} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${(pct / 100) * c} ${c}`} />}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
         <span className="text-[17px] font-semibold tracking-tight">{percent === null ? "–" : letter ?? "–"}</span>

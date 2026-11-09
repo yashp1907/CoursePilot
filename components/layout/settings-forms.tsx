@@ -1,6 +1,7 @@
 "use client";
 import { useState, useTransition } from "react";
-import { Database, RotateCcw } from "lucide-react";
+import { Database, Palette, RotateCcw } from "lucide-react";
+import { AccentPicker, ThemePicker } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field } from "@/components/ui/label";
@@ -20,7 +21,15 @@ export function SettingsForms({ profile, settings, hasDemo }: { profile: Profile
   const [dPending, startD] = useTransition();
 
   return (
-    <div className="max-w-2xl space-y-5">
+    <div className="max-w-3xl space-y-5">
+      <Card>
+        <CardHeader><div><CardTitle className="flex items-center gap-2"><Palette className="size-4" /> Appearance</CardTitle><CardDescription>Pick a mode and a color theme. Every theme has a light and a dark version. Saved on this browser.</CardDescription></div></CardHeader>
+        <CardContent className="space-y-5">
+          <div><p className="mb-2 text-[13px] font-medium text-muted-foreground">Mode</p><ThemePicker /></div>
+          <div><p className="mb-2 text-[13px] font-medium text-muted-foreground">Color theme</p><AccentPicker /></div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader><div><CardTitle>Profile</CardTitle><CardDescription>Used for your greeting and default grading scale.</CardDescription></div></CardHeader>
         <CardContent>
@@ -38,7 +47,7 @@ export function SettingsForms({ profile, settings, hasDemo }: { profile: Profile
       </Card>
 
       <Card>
-        <CardHeader><div><CardTitle>Notifications &amp; planning</CardTitle><CardDescription>Preferences are saved now. In-app notifications arrive in a later release.</CardDescription></div></CardHeader>
+        <CardHeader><div><CardTitle>Notifications &amp; planning</CardTitle><CardDescription>Choose which alerts show up in the bell menu, and how much study time you have each week.</CardDescription></div></CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); startS(async () => { await run(updateSettings(s), "Preferences saved"); }); }}>
             {([["notify_deadlines", "Upcoming deadlines"], ["notify_overdue", "Overdue assignments"], ["notify_exams", "Upcoming exams"], ["notify_canvas", "New or changed Canvas assignments"]] as const).map(([k, label]) => (

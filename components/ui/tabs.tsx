@@ -10,7 +10,7 @@ export function TabsList({ className, ...props }: React.ComponentProps<typeof T.
 export function TabsTrigger({ className, ...props }: React.ComponentProps<typeof T.Trigger>) {
   return (
     <T.Trigger
-      className={cn("px-3 py-2 text-sm font-medium text-muted-foreground border-b-2 border-transparent -mb-px whitespace-nowrap cursor-pointer hover:text-foreground data-[state=active]:text-primary data-[state=active]:border-primary", className)}
+      className={cn("px-3.5 py-2.5 text-sm font-medium text-muted-foreground transition-colors rounded-t-md whitespace-nowrap cursor-pointer hover:bg-accent/60 hover:text-foreground data-[state=active]:text-primary data-[state=active]:shadow-[inset_0_-2px_0_0_var(--primary)]", className)}
       {...props}
     />
   );

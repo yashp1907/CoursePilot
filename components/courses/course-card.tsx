@@ -36,9 +36,10 @@ export function CourseCard({ s, reorder }: { s: CourseSummary; reorder?: Reorder
   return (
     <article
       {...(reorder?.dragHandlers ?? {})}
-      className={cn("group relative overflow-hidden rounded-xl border bg-card shadow-[0_1px_2px_rgba(15,23,42,0.05)] transition-all duration-200", reorder ? "cursor-grab active:cursor-grabbing ring-1 ring-dashed ring-border" : "hover:-translate-y-0.5 hover:shadow-[0_10px_28px_-10px_rgba(15,23,42,0.22)]", reorder?.dragging && "scale-[0.97] opacity-50")}
+      className={cn("spotlight group relative overflow-hidden rounded-xl border bg-card shadow-[var(--shadow-card)] transition-all duration-200", reorder ? "cursor-grab active:cursor-grabbing ring-1 ring-dashed ring-border" : "hover:-translate-y-0.5 hover:shadow-[var(--shadow-lift)] hover:border-[color-mix(in_srgb,var(--foreground)_18%,var(--border))]", reorder?.dragging && "scale-[0.97] opacity-50")}
     >
-      <div className="h-1.5 w-full" style={{ background: `linear-gradient(90deg, ${hex}, color-mix(in srgb, ${hex} 50%, transparent))` }} />
+      <div className="h-1 w-full" style={{ backgroundColor: hex }} />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-1 h-28" style={{ background: `linear-gradient(to bottom, ${tint(color, 9)}, transparent)` }} />
       {!reorder && <NavLink href={`/courses/${c.id}`} className="absolute inset-0 z-0 rounded-xl" aria-label={`Open ${name}: ${c.name}`} />}
 
       {/* The body ignores the pointer so the whole card is one big link; real controls opt back in. */}
@@ -74,7 +75,7 @@ export function CourseCard({ s, reorder }: { s: CourseSummary; reorder?: Reorder
             {s.overdue > 0 && <span className="font-medium text-destructive">{s.overdue} overdue</span>}
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-muted" role="progressbar" aria-label="Assignments completed" aria-valuenow={Math.round(pctDone)} aria-valuemin={0} aria-valuemax={100}>
-            <div className="h-full rounded-full transition-all" style={{ width: `${pctDone}%`, backgroundColor: hex }} />
+            <div className="bar-grow h-full rounded-full" style={{ width: `${pctDone}%`, backgroundColor: hex }} />
           </div>
         </div>
 

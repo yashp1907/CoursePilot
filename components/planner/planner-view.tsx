@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/states";
 import { CourseChip } from "@/components/ui/course-chip";
+import { courseHex, readable, tint } from "@/lib/utils/colors";
 import { cn } from "@/lib/utils";
 import { deleteStudyTask, saveAvailability, toggleStudyTask } from "@/lib/actions/planner";
 import { run } from "@/lib/utils/action";
@@ -92,12 +93,12 @@ export function PlannerView({ assignments, courses, categories, studyTasks, week
           {tasks.length === 0 ? <p className="text-sm text-muted-foreground">Nothing to plan. You have no open assignments due in the next three weeks.</p> : (
             <div className="grid gap-2 md:grid-cols-7">
               {plan.days.map((d) => (
-                <div key={d.date} className="rounded-md border p-2">
+                <div key={d.date} className="rounded-lg border bg-card p-2 shadow-[var(--shadow-card)]">
                   <p className="text-xs font-medium">{format(new Date(`${d.date}T12:00:00`), "EEE d")}</p>
                   <p className="mb-1.5 text-xs text-muted-foreground">{hm(d.usedMinutes)} of {hm(d.capacityMinutes)}</p>
                   <div className="space-y-1">
                     {d.blocks.length === 0 && <p className="text-xs text-muted-foreground">Free</p>}
-                    {d.blocks.map((b, i) => <p key={i} className="rounded bg-primary-soft px-1.5 py-1 text-xs leading-snug text-primary">{b.title}<span className="block text-primary/70">{hm(b.minutes)}</span></p>)}
+                    {d.blocks.map((b, i) => { const col = byCourse.get(tasks.find((t) => t.id === b.taskId)?.courseId ?? "")?.color; return <p key={i} className="break-words rounded px-1.5 py-1 text-xs leading-snug" style={{ backgroundColor: tint(col, 15), color: readable(col), boxShadow: `inset 2px 0 0 ${courseHex(col)}` }}>{b.title}<span className="block opacity-70">{hm(b.minutes)}</span></p>; })}
                   </div>
                 </div>
               ))}

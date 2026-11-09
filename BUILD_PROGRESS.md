@@ -94,3 +94,12 @@ Your school disables student access tokens, so Canvas can also be synced with a 
 - Assignment history is stored and used by the assistant/notifications but has no dedicated UI yet.
 - Email/push notifications and Google Calendar are not implemented (notification drafts are channel-agnostic so they can be added).
 - Study estimates use labeled defaults by assignment type when you haven't set your own.
+
+## UI refresh and dark mode
+- Theme system: Light / Dark / System (`lib/theme.ts`, `components/ui/theme-toggle.tsx`). Set before first paint by an inline script, so there is no flash. It's saved per browser, follows the OS in System mode, and is available from the header menu, Settings → Appearance, and the ⌘K palette.
+- All colors are tokens in `app/globals.css` (`:root` light, `:root[data-theme="dark"]` dark), plus shared shadow tokens. Charts, toasts, dialogs and course colors are theme-aware.
+- Polished: buttons, inputs, cards, dialogs (motion), tabs (underline no longer clipped), sidebar active state, frosted header and mobile bar, branded split-screen login/signup, course-colored planner blocks, calendar chips, dashboard stat cards on mobile.
+
+## Color themes and motion
+- 7 accent themes (Indigo, Ocean, Forest, Sunset, Rose, Violet, Graphite), each with a light and dark version that also re-tints the surfaces. Chosen in Settings → Appearance (`data-accent` on `<html>`, saved in `cp-accent`, applied before first paint). Contrast checked: text-on-surface ≥ 4.5:1 for every theme and mode.
+- Progressive CSS: aurora hero, pointer spotlight on cards, count-up numbers (`@property`), drawing rings/bars, shimmer skeletons, scroll-driven header, dot-grid backdrop. All respect "reduce motion".
