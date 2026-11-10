@@ -61,10 +61,9 @@ function PaletteBody({ close, courses, assignments, actions, onOpenAssignment }:
   let lastGroup = "";
   return (
     <div onKeyDown={onKey}>
-      <div className="flex items-center gap-2 border-b px-4">
+      <div className="flex items-center gap-2 border-b pl-4 pr-14">
         <Search className="size-4 text-muted-foreground" />
         <input autoFocus value={q} onChange={(e) => { setQ(e.target.value); setIdx(0); }} placeholder="Search courses, assignments, pages…" aria-label="Search" className="h-12 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
-        <kbd className="rounded border px-1.5 py-0.5 text-[11px] text-muted-foreground">esc</kbd>
       </div>
       <ul ref={list} className="max-h-80 overflow-y-auto p-1.5" role="listbox">
         {entries.length === 0 && <li className="px-3 py-8 text-center text-sm text-muted-foreground">No matches for “{q}”.</li>}

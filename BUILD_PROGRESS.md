@@ -108,3 +108,11 @@ Your school disables student access tokens, so Canvas can also be synced with a 
 - Installable PWA: `app/manifest.ts`, icons in `public/icons` (any + maskable + Apple), service worker `public/sw.js` (static assets + offline page only), offline page, in-app install banner and Settings → Install card (Android prompt / iOS instructions).
 - Touch UX: safe-area insets, bottom tab bar (Home, Courses, Assignments, Calendar, More), dialogs become bottom sheets on phones, 44px touch targets on coarse pointers, 16px inputs (no iOS zoom), pull-to-refresh, offline banner, collapsible filters, denser rows.
 - Verified in an iPhone-sized touch browser: no horizontal overflow on any page, SW activates and controls the page, offline navigation shows the offline page.
+
+## Liquid Glass style
+- Settings → Appearance → **Style**: Classic or Liquid Glass (`data-style="glass"` on `<html>`, key `cp-style`). Independent of mode and the 7 color themes.
+- Design notes (what makes the real thing work, approximated in CSS): a light source (directional inset rim highlights `--rim`, diagonal `--sheen`, corner lamp), colourful content behind (drifting accent mesh), vibrancy (backdrop blur + saturate), floating capsule shapes (sidebar/header/mobile dock, pill buttons and segmented controls), springy `linear()` motion with lift on hover and squish on press.
+- Surfaces read the accent-tinted solid tokens and make them translucent, so every palette keeps its identity. Graphite gets a calmer backdrop.
+- Contrast was measured programmatically (text colour vs. the rendered pixels behind each text run, ignoring occluded text) across 7 themes x light/dark x 9 pages; tokens (`--muted-foreground`, `--destructive`, `--warning`, `--success`, accent text) are tuned in the glass block. Course chip text (`readable()` in lib/utils/colors.ts) was deepened for both styles.
+- Respects `prefers-reduced-motion` and `prefers-reduced-transparency`; solid fallback without `backdrop-filter`.
+- Fixes found on the way: global border colour moved into `@layer base` (so `border-primary` etc. apply); phone sheet dialogs now slide up from the bottom (the old `max-sm:anim-sheet` class never applied because Tailwind variants don't work on plain CSS classes).

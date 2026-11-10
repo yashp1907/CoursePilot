@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, Laptop, Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ACCENTS, useTheme, type ThemePref } from "@/lib/theme";
+import { ACCENTS, STYLES, useTheme, type ThemePref } from "@/lib/theme";
 
 export const THEME_OPTIONS: { value: ThemePref; label: string; icon: typeof Sun }[] = [
   { value: "light", label: "Light", icon: Sun },
@@ -83,6 +83,39 @@ export function AccentPicker() {
             </div>
             <p className="mt-2 flex items-center gap-1.5 px-0.5 text-sm font-medium">{a.label}{on && <Check className="ml-auto size-3.5 text-primary" />}</p>
             <p className="px-0.5 text-xs text-muted-foreground">{a.blurb}</p>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Interface style: Classic (flat) or Liquid Glass (frosted, Apple-inspired). Works with every color theme and mode. */
+export function StylePicker() {
+  const { style, accent, resolved, setStyle } = useTheme();
+  const a = ACCENTS.find((x) => x.id === accent) ?? ACCENTS[0];
+  const c = resolved === "dark" ? a.dark : a.light;
+  const dark = resolved === "dark";
+  return (
+    <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Interface style">
+      {STYLES.map((o) => {
+        const on = style === o.id; const glass = o.id === "glass";
+        return (
+          <button key={o.id} type="button" role="radio" aria-checked={on} onClick={() => setStyle(o.id)}
+            className={cn("group rounded-xl border p-2 text-left transition-all cursor-pointer hover:border-primary/50", on && "border-primary ring-2 ring-primary/25")}>
+            <div className="relative h-20 overflow-hidden rounded-md border" style={{ backgroundColor: c.bg }}>
+              {glass && <>
+                <div className="absolute -left-4 -top-6 size-16 rounded-full opacity-70 blur-xl" style={{ backgroundColor: c.p }} />
+                <div className="absolute -bottom-6 right-0 size-16 rounded-full opacity-40 blur-xl" style={{ backgroundColor: dark ? "#6ea8ff" : "#ff9ac2" }} />
+              </>}
+              <div className="absolute left-2 top-2 h-1.5 w-7 rounded-full" style={{ backgroundColor: c.p }} />
+              <div className={cn("absolute bottom-2 left-2 right-2 h-9", glass ? "rounded-xl" : "rounded")}
+                style={glass
+                  ? { background: dark ? "rgba(255,255,255,.10)" : "rgba(255,255,255,.62)", backdropFilter: "blur(8px)", boxShadow: `inset 0 1px 0 rgba(255,255,255,${dark ? ".18" : ".9"}), 0 6px 14px -6px rgba(0,0,0,.25)` }
+                  : { background: dark ? "rgba(255,255,255,.07)" : "#fff", boxShadow: "0 1px 2px rgba(0,0,0,.12)" }} />
+            </div>
+            <p className="mt-2 flex items-center gap-1.5 px-0.5 text-sm font-medium">{o.label}{on && <Check className="ml-auto size-3.5 text-primary" />}</p>
+            <p className="px-0.5 text-xs text-muted-foreground">{o.blurb}</p>
           </button>
         );
       })}

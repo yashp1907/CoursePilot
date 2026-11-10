@@ -2,7 +2,7 @@
 import { useState, useTransition } from "react";
 import { Database, Palette, RotateCcw, Smartphone } from "lucide-react";
 import { InstallPanel } from "@/components/ui/install-app";
-import { AccentPicker, ThemePicker } from "@/components/ui/theme-toggle";
+import { AccentPicker, StylePicker, ThemePicker } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field } from "@/components/ui/label";
@@ -24,8 +24,9 @@ export function SettingsForms({ profile, settings, hasDemo }: { profile: Profile
   return (
     <div className="max-w-3xl space-y-5">
       <Card>
-        <CardHeader><div><CardTitle className="flex items-center gap-2"><Palette className="size-4" /> Appearance</CardTitle><CardDescription>Pick a mode and a color theme. Every theme has a light and a dark version. Saved on this browser.</CardDescription></div></CardHeader>
+        <CardHeader><div><CardTitle className="flex items-center gap-2"><Palette className="size-4" /> Appearance</CardTitle><CardDescription>Pick a style, a mode and a color theme. Every combination works, and every color theme has a light and a dark version. Saved on this browser.</CardDescription></div></CardHeader>
         <CardContent className="space-y-5">
+          <div><p className="mb-2 text-[13px] font-medium text-muted-foreground">Style</p><StylePicker /></div>
           <div><p className="mb-2 text-[13px] font-medium text-muted-foreground">Mode</p><ThemePicker /></div>
           <div><p className="mb-2 text-[13px] font-medium text-muted-foreground">Color theme</p><AccentPicker /></div>
         </CardContent>

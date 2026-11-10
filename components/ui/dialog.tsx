@@ -14,8 +14,9 @@ export function DialogContent({ className, children, title, description, sheet =
     <D.Portal>
       <D.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm anim-fade" />
       <D.Content
+        data-sheet={sheet ? "" : undefined}
         className={cn("fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 max-h-[90vh] overflow-y-auto rounded-2xl border bg-card p-6 shadow-[var(--shadow-pop)] anim-pop",
-          sheet && "max-sm:top-auto max-sm:bottom-0 max-sm:left-0 max-sm:w-full max-sm:max-w-none max-sm:[--tw-translate-x:0] max-sm:[--tw-translate-y:0] max-sm:max-h-[92dvh] max-sm:rounded-b-none max-sm:border-x-0 max-sm:border-b-0 max-sm:px-5 max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))] max-sm:pt-7 max-sm:anim-sheet", className)}
+          sheet && "max-sm:top-auto max-sm:bottom-0 max-sm:left-0 max-sm:w-full max-sm:max-w-none max-sm:[--tw-translate-x:0] max-sm:[--tw-translate-y:0] max-sm:max-h-[92dvh] max-sm:rounded-b-none max-sm:border-x-0 max-sm:border-b-0 max-sm:px-5 max-sm:pb-[max(1.5rem,env(safe-area-inset-bottom))] max-sm:pt-7", className)}
         {...props}
       >
         {sheet && <span aria-hidden className="absolute left-1/2 top-2.5 h-1 w-10 -translate-x-1/2 rounded-full bg-border sm:hidden" />}

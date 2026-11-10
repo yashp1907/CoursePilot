@@ -22,4 +22,4 @@ export function courseHex(c: string | null | undefined): string {
 /** A translucent wash of the color for backgrounds (works on light and dark surfaces). */
 export const tint = (c: string | null | undefined, pct = 12) => `color-mix(in srgb, ${courseHex(c)} ${pct}%, transparent)`;
 /** Text in the course color, blended toward the theme's foreground so it stays readable on light AND dark. */
-export const readable = (c: string | null | undefined) => `color-mix(in oklab, ${courseHex(c)} 62%, var(--foreground))`;
+export const readable = (c: string | null | undefined) => `color-mix(in oklab, ${courseHex(c)} 54%, var(--foreground))`;

@@ -2,6 +2,7 @@
 import { useSyncExternalStore } from "react";
 
 export type ThemePref = "light" | "dark" | "system";
+export type StyleId = "classic" | "glass";
 export type AccentId = "indigo" | "ocean" | "forest" | "sunset" | "rose" | "violet" | "graphite";
 
 /** Swatches mirror the CSS in globals.css (used only for previews). */
@@ -15,6 +16,12 @@ export const ACCENTS: { id: AccentId; label: string; blurb: string; light: { bg:
   { id: "graphite", label: "Graphite", blurb: "Quiet and minimal", light: { bg: "#f5f5f5", p: "#262a33" }, dark: { bg: "#0f0f10", p: "#e6e7ea" } },
 ];
 
+export const STYLES: { id: StyleId; label: string; blurb: string }[] = [
+  { id: "classic", label: "Classic", blurb: "Crisp, flat and fast" },
+  { id: "glass", label: "Liquid Glass", blurb: "Frosted, luminous, alive" },
+];
+
+const SKEY = "cp-style";
 const KEY = "cp-theme";
 const AKEY = "cp-accent";
 const listeners = new Set<() => void>();
@@ -26,6 +33,10 @@ export function readPref(): ThemePref {
 export function readAccent(): AccentId {
   try { const v = localStorage.getItem(AKEY); if (ACCENTS.some((a) => a.id === v)) return v as AccentId; } catch { /* ignore */ }
   return "indigo";
+}
+export function readStyle(): StyleId {
+  try { if (localStorage.getItem(SKEY) === "glass") return "glass"; } catch { /* ignore */ }
+  return "classic";
 }
 export const systemPrefersDark = () => typeof matchMedia === "function" && matchMedia("(prefers-color-scheme: dark)").matches;
 export const resolve = (p: ThemePref): "light" | "dark" => (p === "system" ? (systemPrefersDark() ? "dark" : "light") : p);
@@ -59,6 +70,13 @@ export function applyAccent(a: AccentId, animate = false) {
   paintMeta();
 }
 
+export function applyStyle(st: StyleId, animate = false) {
+  const root = document.documentElement;
+  const set = () => { if (st === "glass") root.dataset.style = "glass"; else delete root.dataset.style; };
+  if (animate) smooth(set); else set();
+  paintMeta();
+}
+
 export function setPref(p: ThemePref) {
   try { localStorage.setItem(KEY, p); } catch { /* ignore */ }
   applyTheme(p, true);
@@ -70,11 +88,17 @@ export function setAccent(a: AccentId) {
   listeners.forEach((l) => l());
 }
 
+export function setStyle(st: StyleId) {
+  try { localStorage.setItem(SKEY, st); } catch { /* ignore */ }
+  applyStyle(st, true);
+  listeners.forEach((l) => l());
+}
+
 function subscribe(cb: () => void) {
   listeners.add(cb);
   const mq = matchMedia("(prefers-color-scheme: dark)");
   const onSys = () => { if (readPref() === "system") applyTheme("system"); cb(); };
-  const onStorage = (e: StorageEvent) => { if (e.key === KEY) applyTheme(readPref()); if (e.key === AKEY) applyAccent(readAccent()); cb(); };
+  const onStorage = (e: StorageEvent) => { if (e.key === KEY) applyTheme(readPref()); if (e.key === AKEY) applyAccent(readAccent()); if (e.key === SKEY) applyStyle(readStyle()); cb(); };
   mq.addEventListener("change", onSys); window.addEventListener("storage", onStorage);
   return () => { listeners.delete(cb); mq.removeEventListener("change", onSys); window.removeEventListener("storage", onStorage); };
 }
@@ -84,8 +108,9 @@ export function useTheme() {
   const pref = useSyncExternalStore(subscribe, readPref, () => "system" as ThemePref);
   const resolved = useSyncExternalStore(subscribe, () => resolve(readPref()), () => "light" as const);
   const accent = useSyncExternalStore(subscribe, readAccent, () => "indigo" as AccentId);
-  return { pref, resolved, accent, setPref, setAccent };
+  const style = useSyncExternalStore(subscribe, readStyle, () => "classic" as StyleId);
+  return { pref, resolved, accent, style, setPref, setAccent, setStyle };
 }
 
 /** Runs before first paint (inlined in <head>) so there's never a flash of the wrong theme or accent. */
-export const THEME_INIT_SCRIPT = `(function(){try{var r=document.documentElement;var p=localStorage.getItem('${KEY}');if(p!=='light'&&p!=='dark')p='system';var d=p==='dark'||(p==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);r.dataset.theme=d?'dark':'light';r.style.colorScheme=d?'dark':'light';var a=localStorage.getItem('${AKEY}');if(a&&a!=='indigo')r.dataset.accent=a;}catch(e){}})();`;
+export const THEME_INIT_SCRIPT = `(function(){try{var r=document.documentElement;var p=localStorage.getItem('${KEY}');if(p!=='light'&&p!=='dark')p='system';var d=p==='dark'||(p==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);r.dataset.theme=d?'dark':'light';r.style.colorScheme=d?'dark':'light';var a=localStorage.getItem('${AKEY}');if(a&&a!=='indigo')r.dataset.accent=a;if(localStorage.getItem('${SKEY}')==='glass')r.dataset.style='glass';}catch(e){}})();`;

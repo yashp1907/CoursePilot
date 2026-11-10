@@ -95,7 +95,7 @@
   --font-mono: var(--font-geist-mono);
 }
 
-* { border-color: var(--border); }
+@layer base { * { border-color: var(--border); } }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 body {
   background: var(--background);
@@ -105,7 +105,13 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 ::selection { background: color-mix(in srgb, var(--primary) 25%, transparent); }
-:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-radius: 4px; }
+/* Focus rings show for keyboard users only, follow each element's own corner radius, and live in the base layer so
+   utilities like `outline-none` can opt out (an unlayered rule here used to override them and drew square boxes). */
+@layer base {
+  :focus-visible { outline: 2px solid color-mix(in srgb, var(--ring) 75%, transparent); outline-offset: 2px; }
+  :focus:not(:focus-visible) { outline: none; }
+  [role="tab"]:focus-visible { outline-offset: -3px; border-radius: 0.5rem; }
+}
 h1, h2, h3 { text-wrap: balance; }
 p { text-wrap: pretty; }
 input[type="checkbox"], input[type="radio"] { accent-color: var(--primary); }
@@ -131,6 +137,8 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--primary); }
 .stagger > *:nth-child(n+4) { animation-delay: .18s; }
 @keyframes cp-sheet { from { translate: 0 100%; opacity: 1; } to { translate: 0 0; opacity: 1; } }
 .anim-sheet { animation: cp-sheet .28s cubic-bezier(.2, .8, .2, 1) !important; }
+/* Phones: sheet-style dialogs slide up from the bottom edge (a plain class can't take Tailwind's max-sm: variant). */
+@media (max-width: 639px) { [role="dialog"][data-sheet] { animation: cp-sheet .4s cubic-bezier(.2, .9, .25, 1) !important; } }
 .anim-fade { animation: cp-fade .15s ease-out; }
 .anim-pop { animation: cp-pop .18s cubic-bezier(.2,.8,.2,1); }
 .anim-rise { animation: cp-rise .28s cubic-bezier(.2,.8,.2,1) both; }
@@ -209,3 +217,179 @@ a, button, [role="button"], [role="tab"], [role="radio"], summary, label, input,
   nav, header, button { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 }
 @media (max-width: 639px) { body::before { display: none; } }
+
+/* =====================================================================================================
+   LIQUID GLASS (data-style="glass"): an Apple-inspired interface style layered on top of every color theme
+   and both modes. It only re-skins surfaces, depth, shape and motion; layout and behaviour are untouched.
+
+   What makes the real thing work, and how it's approximated here in CSS:
+   1. A light source. Edges are bright where light hits (top-left) and fade elsewhere, via directional inset
+      shadows (--rim), plus a soft diagonal sheen across each surface (--sheen) and a lamp glow in the corner.
+   2. Colourful content behind. Glass is only visible over something, so a slow-drifting accent mesh sits
+      behind the app, and surfaces amplify it with backdrop saturation.
+   3. Translucency with vibrancy, not mere blur: backdrop blur + saturate on every large surface.
+   4. Shape language: floating, fully-rounded elements (sidebar, header and mobile dock hover over the page;
+      buttons and segmented controls are capsules; corners are concentric).
+   5. Fluid, springy motion (linear() spring easing), lift on hover, squish on press.
+   Surfaces read the accent-tinted solid tokens and make them translucent, so every palette keeps its identity.
+   ===================================================================================================== */
+:root[data-style="glass"] {
+  --radius: 1.125rem;
+  --radius-xl: 1.625rem;
+  --radius-2xl: 2rem;
+  --rim: inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.95), inset -1px -1px 1px -1px rgba(255, 255, 255, 0.75), inset 0 0 26px rgba(255, 255, 255, 0.3);
+  --drop: 0 1px 2px rgba(24, 32, 72, 0.05), 0 20px 44px -22px rgba(24, 32, 72, 0.3);
+  --shadow-card: var(--rim), var(--drop);
+  --shadow-lift: var(--rim), 0 2px 4px rgba(24, 32, 72, 0.06), 0 30px 56px -20px rgba(24, 32, 72, 0.4);
+  --shadow-pop: var(--rim), 0 40px 90px -24px rgba(24, 32, 72, 0.5), 0 0 0 1px rgba(24, 32, 72, 0.06);
+  --sheen: linear-gradient(140deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.1) 42%, rgba(255, 255, 255, 0) 72%);
+  --glass-hair: color-mix(in srgb, var(--foreground) 9%, transparent);
+  /* Text sits on translucent, colourful surfaces, so secondary text and alerts are nudged for contrast (checked per theme). */
+  --muted-foreground: #454e5d;
+  --destructive: #c0241a;
+  --warning: #9a4506;
+  --success: #146b32;
+  --spring: linear(0, 0.006, 0.025 2.8%, 0.101 6.1%, 0.539 18.9%, 0.721 25.3%, 0.849 31.5%, 0.937 38.1%, 0.968 41.8%, 0.991 45.7%, 1.006 50.1%, 1.015 55%, 1.017 63.9%, 1.001);
+}
+:root[data-style="glass"][data-theme="dark"] {
+  --rim: inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.3), inset -1px -1px 1px -1px rgba(255, 255, 255, 0.13), inset 0 0 28px rgba(255, 255, 255, 0.04);
+  --drop: 0 24px 48px -22px rgba(0, 0, 0, 0.8);
+  --shadow-lift: var(--rim), 0 32px 60px -20px rgba(0, 0, 0, 0.85);
+  --shadow-pop: var(--rim), 0 44px 100px -24px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.09);
+  --sheen: linear-gradient(140deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.025) 45%, rgba(255, 255, 255, 0) 72%);
+  --glass-hair: rgba(255, 255, 255, 0.09);
+  --muted-foreground: #b4bac6;
+  --destructive: #ff8a7f;
+  --warning: #f0b84a;
+  --success: #5fcf8a;
+}
+@layer base { :root[data-style="glass"] * { border-color: var(--glass-hair); } }
+
+/* Typography: the system's SF Pro on Apple devices (Geist elsewhere), with Apple-style tight display tracking. */
+:root[data-style="glass"] body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", var(--font-geist-sans), system-ui, sans-serif; letter-spacing: -0.006em; }
+:root[data-style="glass"] :is(h1, h2, h3) { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", var(--font-geist-sans), system-ui, sans-serif; letter-spacing: -0.026em; }
+
+/* Living backdrop: colourful pools drift slowly behind everything (one GPU layer, no repaint), and a lamp glows top-left. */
+:root[data-style="glass"] body::before {
+  content: ""; position: fixed; inset: -20%; z-index: -1; pointer-events: none; display: block;
+  -webkit-mask-image: none; mask-image: none; background-size: auto; will-change: translate;
+  background-image:
+    radial-gradient(40% 36% at 12% 10%, color-mix(in oklab, var(--primary) 46%, transparent), transparent 70%),
+    radial-gradient(36% 40% at 90% 14%, color-mix(in oklab, var(--primary) 20%, #ff6fb5 36%), transparent 70%),
+    radial-gradient(44% 40% at 80% 92%, color-mix(in oklab, var(--primary) 28%, #4cc9ff 32%), transparent 72%),
+    radial-gradient(34% 34% at 8% 88%, color-mix(in oklab, var(--primary) 18%, #ffb35c 28%), transparent 72%),
+    radial-gradient(26% 26% at 52% 48%, color-mix(in oklab, var(--primary) 18%, #b48cff 24%), transparent 74%);
+  opacity: 0.62; animation: cp-mesh 40s ease-in-out infinite alternate;
+}
+:root[data-style="glass"][data-theme="dark"] body::before { opacity: 0.7; }
+:root[data-style="glass"] body::after {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(60vmax 50vmax at 0% 0%, rgba(255, 255, 255, 0.75), transparent 62%);
+}
+:root[data-style="glass"][data-theme="dark"] body::after { background: radial-gradient(60vmax 50vmax at 0% 0%, color-mix(in srgb, var(--primary) 8%, transparent), transparent 62%); }
+@keyframes cp-mesh { from { translate: -2.5% -1.5%; scale: 1; } to { translate: 2.5% 2%; scale: 1.08; } }
+@media (max-width: 639px) { :root[data-style="glass"] body::before { animation: none; } }
+
+/* Graphite stays quiet: a calmer backdrop with less hue play. */
+:root[data-style="glass"][data-accent="graphite"] body::before { opacity: 0.38; filter: saturate(0.5); }
+:root[data-style="glass"][data-accent="graphite"][data-theme="dark"] body::before { opacity: 0.5; }
+
+/* Surfaces: translucent, tinted, with a diagonal sheen. Elements with hover background utilities are only glassy while not hovered. */
+:root[data-style="glass"] .bg-card:not([class*="hover:bg"]),
+:root[data-style="glass"] .bg-card[class*="hover:bg"]:not(:hover) { background-color: color-mix(in srgb, var(--card) 68%, transparent); background-image: var(--sheen); }
+:root[data-style="glass"] .bg-card\/50 { background-color: color-mix(in srgb, var(--card) 36%, transparent); }
+:root[data-style="glass"] .bg-card:is(input, textarea, select) { background-image: none; background-color: color-mix(in srgb, var(--card) 70%, transparent); box-shadow: inset 0 1.5px 3px rgba(24, 32, 72, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.3), 0 1px 0 rgba(255, 255, 255, 0.6); }
+:root[data-style="glass"][data-theme="dark"] .bg-card:is(input, textarea, select) { box-shadow: inset 0 1.5px 3px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.06); }
+:root[data-style="glass"] [class*="bg-sidebar"] { background-color: color-mix(in srgb, var(--sidebar) 58%, transparent); background-image: var(--sheen); }
+:root[data-style="glass"][data-theme="dark"] [class*="bg-sidebar"] { background-color: color-mix(in srgb, var(--sidebar) 70%, transparent); }
+:root[data-style="glass"][data-theme="dark"] .bg-card:not([class*="hover:bg"]), :root[data-style="glass"][data-theme="dark"] .bg-card[class*="hover:bg"]:not(:hover) { background-color: color-mix(in srgb, var(--card) 68%, transparent); }
+:root[data-style="glass"] .bg-primary-soft { background-color: color-mix(in srgb, var(--primary-soft) 70%, var(--card)); }
+
+/* Vibrancy: large surfaces blur and saturate what is behind them. Floating ones are slightly denser. */
+:root[data-style="glass"] :is([class*="shadow-[var(--shadow-card)]"], .bg-card.overflow-hidden.border, header.sticky, aside.fixed, nav.fixed, .fixed.bg-card, .absolute.bg-card, .absolute[class*="bg-sidebar"]) {
+  -webkit-backdrop-filter: blur(22px) saturate(1.8); backdrop-filter: blur(22px) saturate(1.8);
+}
+:root[data-style="glass"] :is(.fixed.bg-card, .absolute.bg-card) { background-color: color-mix(in srgb, var(--card) 76%, transparent); box-shadow: var(--shadow-pop); }
+:root[data-style="glass"] .absolute[class*="bg-sidebar"] { background-color: color-mix(in srgb, var(--sidebar) 76%, transparent); }
+:root[data-style="glass"] .fixed.inset-0.bg-black\/50 { background-color: rgba(10, 12, 28, 0.28); -webkit-backdrop-filter: blur(16px) saturate(1.5); backdrop-filter: blur(16px) saturate(1.5); }
+
+/* Floating chrome (desktop): the sidebar and header hover over the page as rounded glass panels. */
+@media (min-width: 1024px) {
+  :root[data-style="glass"] aside.fixed { inset: 10px auto 10px 10px; width: calc(15rem - 10px); border: 1px solid var(--glass-hair); border-radius: 1.75rem; overflow: hidden; box-shadow: var(--shadow-lift); }
+  :root[data-style="glass"] header.sticky { top: 10px; margin: 10px 10px 0 0; border: 1px solid var(--glass-hair); border-radius: 1.75rem; box-shadow: var(--shadow-lift); animation: none; }
+  :root[data-style="glass"] header.sticky > div:first-of-type { min-width: 0; }
+  :root[data-style="glass"] aside .border-b, :root[data-style="glass"] aside .border-t { border-color: var(--glass-hair); }
+}
+@media (max-width: 1023px) {
+  :root[data-style="glass"] header.sticky { box-shadow: 0 1px 0 var(--glass-hair); animation: none; }
+  /* The mobile tab bar becomes a floating dock. */
+  :root[data-style="glass"] nav[aria-label="Primary"] {
+    left: 10px; right: 10px; bottom: calc(8px + env(safe-area-inset-bottom)); padding-bottom: 0;
+    border: 1px solid var(--glass-hair); border-radius: 2rem; box-shadow: var(--shadow-pop);
+  }
+}
+:root[data-style="glass"] header.sticky { border-color: var(--glass-hair); }
+
+/* Capsule controls: buttons and segmented controls are fully rounded; primary buttons are lit like gel. */
+:root[data-style="glass"] :is(button, a).inline-flex.justify-center.rounded-lg { border-radius: 999px; }
+:root[data-style="glass"] [role="tablist"].bg-card { border-radius: 999px; }
+:root[data-style="glass"] [role="tablist"].bg-card > * { border-radius: 999px; }
+:root[data-style="glass"] :is(button, a).bg-primary {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(0, 0, 0, 0.14), 0 1px 2px rgba(0, 0, 0, 0.2), 0 12px 24px -10px color-mix(in srgb, var(--primary) 80%, transparent);
+}
+@media (hover: hover) { :root[data-style="glass"] :is(button, a).bg-primary:hover { filter: brightness(1.07) saturate(1.1); } }
+:root[data-style="glass"] :is(button, a, [role="tab"], [role="radio"]) { transition-timing-function: var(--spring); }
+:root[data-style="glass"] :is(button, a.inline-flex):active { scale: 0.965; }
+:root[data-style="glass"] :is(input, textarea, select):not(.bg-transparent):focus-visible { outline: none; box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 24%, transparent), inset 0 0 0 1px color-mix(in srgb, var(--primary) 60%, transparent); }
+
+/* Accent-coloured text is deepened slightly in light mode so it holds up on translucent, tinted surfaces. */
+:root[data-style="glass"][data-theme="light"] .text-primary { color: color-mix(in oklab, var(--primary) 88%, #000); }
+
+/* Dimmed secondary text inside tinted blocks stays legible. */
+:root[data-style="glass"] span.block.opacity-70 { opacity: 0.88; }
+
+/* Section labels keep full contrast on glass. */
+:root[data-style="glass"] aside .text-muted-foreground\/80 { color: var(--muted-foreground); }
+
+/* Active navigation reads as a lit glass bubble. */
+:root[data-style="glass"] :is(aside, nav[aria-label="Primary"]) .bg-primary-soft { background-color: color-mix(in srgb, var(--primary-soft) 88%, transparent); box-shadow: inset 1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.7), inset 0 0 14px rgba(255, 255, 255, 0.12), 0 6px 14px -8px color-mix(in srgb, var(--primary) 60%, transparent); }
+@media (hover: hover) { :root[data-style="glass"] aside nav a:hover { translate: 2px 0; } }
+:root[data-style="glass"] aside nav a { transition: translate .35s var(--spring), background-color .2s ease, color .2s ease; }
+
+/* Interactive cards lift with a spring and catch a specular sheen under the pointer. */
+@media (hover: hover) {
+  :root[data-style="glass"] .spotlight { transition: translate .5s var(--spring), box-shadow .3s ease; }
+  :root[data-style="glass"] .spotlight:hover { translate: 0 -4px; box-shadow: var(--shadow-lift); }
+}
+:root[data-style="glass"] .spotlight::after { background: radial-gradient(300px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.55), color-mix(in srgb, var(--primary) 8%, transparent) 40%, transparent 72%); mix-blend-mode: soft-light; }
+:root[data-style="glass"][data-theme="dark"] .spotlight::after { background: radial-gradient(300px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.17), color-mix(in srgb, var(--primary) 10%, transparent) 40%, transparent 72%); mix-blend-mode: normal; }
+
+/* Hero: a stronger aurora and a slow glint that sweeps across the glass. */
+:root[data-style="glass"] .aurora::before { filter: saturate(1.6); }
+:root[data-style="glass"] .aurora::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.3) 50%, transparent 62%); background-size: 260% 100%; background-position: 130% 0;
+  animation: cp-glint 9s ease-in-out 1.2s infinite;
+}
+@keyframes cp-glint { 0%, 55% { background-position: 130% 0; } 100% { background-position: -80% 0; } }
+
+/* Entrances use a gentle spring; skeletons become soft glass shimmers. */
+:root[data-style="glass"] .anim-pop { animation: cp-pop .5s var(--spring); }
+:root[data-style="glass"] .anim-rise, :root[data-style="glass"] .stagger > * { animation-timing-function: var(--spring); }
+:root[data-style="glass"] .skeleton { background: linear-gradient(100deg, color-mix(in srgb, var(--foreground) 6%, transparent) 30%, color-mix(in srgb, var(--foreground) 12%, transparent) 50%, color-mix(in srgb, var(--foreground) 6%, transparent) 70%); background-size: 220% 100%; }
+:root[data-style="glass"] ::selection { background: color-mix(in srgb, var(--primary) 30%, transparent); }
+
+/* Respect the OS: no transparency when asked, and a solid fallback where backdrop-filter is missing. */
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-style="glass"] .bg-card { background-color: var(--card) !important; background-image: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  :root[data-style="glass"] [class*="bg-sidebar"] { background-color: var(--sidebar) !important; background-image: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root[data-style="glass"] :is(.fixed.bg-card, .absolute.bg-card) { background-color: var(--card) !important; }
+  :root[data-style="glass"] :is(header.sticky, aside.fixed, nav.fixed) { background-color: var(--sidebar) !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-style="glass"] body::before, :root[data-style="glass"] .aurora::after { animation: none; }
+  :root[data-style="glass"] :is(button, a.inline-flex):active { scale: 1; }
+}
