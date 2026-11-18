@@ -6,8 +6,8 @@ import { Spotlight } from "@/components/ui/spotlight";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"], display: "swap" });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], preload: false, display: "swap" });
 
 export const metadata: Metadata = {
   title: { default: "CoursePilot: Your entire semester, under control.", template: "%s · CoursePilot" },

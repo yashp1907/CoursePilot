@@ -393,3 +393,28 @@ a, button, [role="button"], [role="tab"], [role="radio"], summary, label, input,
   :root[data-style="glass"] body::before, :root[data-style="glass"] .aurora::after { animation: none; }
   :root[data-style="glass"] :is(button, a.inline-flex):active { scale: 1; }
 }
+
+/* ---------- Performance: phones ----------
+   Backdrop blur on every card is the single most expensive thing in Liquid Glass on a phone GPU. On touch / small screens
+   only the floating chrome (header, dock, menus, sheets) keeps the blur; cards become near-opaque tinted glass. */
+@media (max-width: 1023px), (pointer: coarse) {
+  :root[data-style="glass"] :is([class*="shadow-[var(--shadow-card)]"], .bg-card.overflow-hidden.border) { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  :root[data-style="glass"] .bg-card:not([class*="hover:bg"]):not(.fixed):not(.absolute) { background-color: color-mix(in srgb, var(--card) 88%, transparent); }
+  :root[data-style="glass"] header.sticky, :root[data-style="glass"] aside.fixed, :root[data-style="glass"] nav.fixed { -webkit-backdrop-filter: blur(14px) saturate(1.5); backdrop-filter: blur(14px) saturate(1.5); }
+  :root[data-style="glass"] .fixed.inset-0.bg-black\/50 { -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+  :root[data-style="glass"] body::before { animation: none; will-change: auto; }
+  .stagger > * { animation-duration: .25s; }
+}
+/* Skip rendering work for off-screen sections of long pages. */
+.cv-auto { content-visibility: auto; contain-intrinsic-size: auto 400px; }
+
+/* ---------- Dropdowns: roomy, readable ---------- */
+.native-select {
+  appearance: none; -webkit-appearance: none; cursor: pointer; text-overflow: ellipsis;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a92a3' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat; background-position: right 0.7rem center; background-size: 1rem;
+}
+.native-select option { padding: 0.5rem 0.75rem; }
+.menu-pop { padding: 0.375rem; border-radius: 1rem; }
+.menu-pop [role^="menuitem"] { min-height: 2.5rem; }
+@media (pointer: coarse) { .menu-pop [role^="menuitem"] { min-height: 2.75rem; } }

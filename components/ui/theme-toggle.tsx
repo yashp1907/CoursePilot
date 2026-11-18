@@ -30,10 +30,10 @@ export function ThemeToggle() {
         <Icon className="size-[18px]" suppressHydrationWarning />
       </button>
       {open && (
-        <div role="menu" aria-label="Appearance" className="absolute right-0 z-50 mt-2 w-40 overflow-hidden rounded-lg border bg-card p-1 shadow-[var(--shadow-pop)]">
+        <div role="menu" aria-label="Appearance" className="menu-pop absolute right-0 z-50 mt-2 w-48 space-y-0.5 overflow-hidden border bg-card shadow-[var(--shadow-pop)] anim-fade">
           {THEME_OPTIONS.map((o) => (
             <button key={o.value} role="menuitemradio" aria-checked={pref === o.value} onClick={() => { setPref(o.value); setOpen(false); }}
-              className={cn("flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-sm hover:bg-accent cursor-pointer", pref === o.value && "font-medium")}>
+              className={cn("flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm hover:bg-accent cursor-pointer", pref === o.value && "font-medium")}>
               <o.icon className="size-4 text-muted-foreground" />{o.label}{pref === o.value && <Check className="ml-auto size-3.5 text-primary" />}
             </button>
           ))}

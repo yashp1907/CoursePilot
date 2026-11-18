@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { CalendarPlus, ChevronDown, LogOut, Menu, MoreHorizontal, Plus, Search, WifiOff, X } from "lucide-react";
+import dynamic from "next/dynamic";
+import { BookOpen, CalendarPlus, ChevronDown, ClipboardList, LogOut, Menu, MoreHorizontal, Plus, Search, WifiOff, X } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -15,11 +16,7 @@ import { cn } from "@/lib/utils";
 import { logout } from "@/lib/actions/auth";
 import { summarizeSync, syncCanvas } from "@/lib/canvas/client-sync";
 import { pingExtension } from "@/lib/canvas/extension-bridge";
-import { AssignmentDialog } from "@/components/assignments/assignment-dialog";
-import { CourseFormDialog } from "@/components/courses/course-form-dialog";
-import { EventDialog } from "@/components/calendar/event-dialog";
 import { InstallBanner } from "@/components/ui/install-app";
-import { CommandPalette } from "./command-palette";
 import { PullToRefresh } from "./pull-to-refresh";
 import { NotificationBell, type NotificationItem } from "./notification-bell";
 import { MOBILE_TABS, NAV } from "./nav";
@@ -31,6 +28,17 @@ export interface ShellProps {
   canvas: { connected: boolean; status: string | null; lastSyncedAt: string | null; authType: string | null };
   children: React.ReactNode;
 }
+
+// Dialogs and the palette are only needed after a tap, so keep them out of the first-load bundle.
+const AssignmentDialog = dynamic(() => import("@/components/assignments/assignment-dialog").then((m) => m.AssignmentDialog));
+const CourseFormDialog = dynamic(() => import("@/components/courses/course-form-dialog").then((m) => m.CourseFormDialog));
+const EventDialog = dynamic(() => import("@/components/calendar/event-dialog").then((m) => m.EventDialog));
+const CommandPalette = dynamic(() => import("./command-palette").then((m) => m.CommandPalette));
+const whenIdle = (fn: () => void, timeout = 4000) => {
+  const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (h: number) => void };
+  if (w.requestIdleCallback) { const h = w.requestIdleCallback(fn, { timeout }); return () => w.cancelIdleCallback?.(h); }
+  const t = setTimeout(fn, 1500); return () => clearTimeout(t);
+};
 
 const STALE_MS = 3 * 3_600_000;
 
@@ -114,6 +122,10 @@ export function AppShell({ name, email, courses, categories, openAssignments, no
   const [assignDlg, setAssignDlg] = useState<{ open: boolean; assignment: Assignment | null }>({ open: false, assignment: null });
   const [courseDlg, setCourseDlg] = useState(false);
   const [eventDlg, setEventDlg] = useState(false);
+  // Mount each lazy chunk on first use only (then keep it mounted so close animations and state work normally).
+  const [used, setUsed] = useState({ palette: false, assign: false, course: false, event: false });
+  if ((paletteOpen && !used.palette) || (assignDlg.open && !used.assign) || (courseDlg && !used.course) || (eventDlg && !used.event))
+    setUsed({ palette: used.palette || paletteOpen, assign: used.assign || assignDlg.open, course: used.course || courseDlg, event: used.event || eventDlg });
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setPaletteOpen((o) => !o); } };
@@ -131,13 +143,13 @@ export function AppShell({ name, email, courses, categories, openAssignments, no
       sessionStorage.setItem("cp_canvas_auto", String(Date.now()));
     } catch { /* ignore */ }
     const method = canvas.authType === "extension" ? "extension" : "api";
-    (async () => {
+    return whenIdle(() => { (async () => {
       // The extension route only works if the extension is present in this browser; otherwise stay quiet.
       if (method === "extension" && !(await pingExtension())) return;
       const r = await syncCanvas(method);
       if (r.ok) { const text = summarizeSync(r.summary); if (!text.startsWith("Everything")) toast.success(`Canvas synced: ${text}`); router.refresh(); }
       else if (r.code === "auth" || r.code === "config" || r.code === "not_logged_in") toast.error(`Canvas: ${r.error}`, { action: { label: "Open Integrations", onClick: () => router.push("/integrations") } });
-    })();
+    })(); }, 6000);
   }, [canvas.connected, canvas.status, canvas.lastSyncedAt, canvas.authType, router]);
 
   const syncNow = async () => {
@@ -174,9 +186,9 @@ export function AppShell({ name, email, courses, categories, openAssignments, no
       {addOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setAddOpen(false)} />
-          <div role="menu" className="absolute right-0 z-50 mt-2 w-48 overflow-hidden rounded-xl border bg-card p-1 shadow-[var(--shadow-pop)] anim-fade">
-            {[{ l: "Assignment", f: () => setAssignDlg({ open: true, assignment: null }) }, { l: "Course", f: () => setCourseDlg(true) }, { l: "Calendar event", f: () => setEventDlg(true) }].map((i) => (
-              <button key={i.l} role="menuitem" className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-sm hover:bg-accent cursor-pointer" onClick={() => { setAddOpen(false); i.f(); }}><CalendarPlus className="size-4 text-muted-foreground" />{i.l}</button>
+          <div role="menu" className="menu-pop absolute right-0 z-50 mt-2 w-56 space-y-0.5 overflow-hidden border bg-card shadow-[var(--shadow-pop)] anim-fade">
+            {[{ l: "Assignment", I: ClipboardList, f: () => setAssignDlg({ open: true, assignment: null }) }, { l: "Course", I: BookOpen, f: () => setCourseDlg(true) }, { l: "Calendar event", I: CalendarPlus, f: () => setEventDlg(true) }].map((i) => (
+              <button key={i.l} role="menuitem" className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm hover:bg-accent cursor-pointer" onClick={() => { setAddOpen(false); i.f(); }}><i.I className="size-4 text-muted-foreground" />{i.l}</button>
             ))}
           </div>
         </>
@@ -242,10 +254,10 @@ export function AppShell({ name, email, courses, categories, openAssignments, no
       )}
 
       <PullToRefresh />
-      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} courses={courses} assignments={openAssignments} actions={actions} onOpenAssignment={(a) => setAssignDlg({ open: true, assignment: a })} />
-      <AssignmentDialog open={assignDlg.open} onOpenChange={(o) => setAssignDlg((d) => ({ ...d, open: o }))} courses={courses} categories={categories} assignment={assignDlg.assignment} />
-      <CourseFormDialog open={courseDlg} onOpenChange={setCourseDlg} defaultSemester={semester} />
-      <EventDialog open={eventDlg} onOpenChange={setEventDlg} courses={courses} defaultDay={new Date()} />
+      {used.palette && <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} courses={courses} assignments={openAssignments} actions={actions} onOpenAssignment={(a) => setAssignDlg({ open: true, assignment: a })} />}
+      {used.assign && <AssignmentDialog open={assignDlg.open} onOpenChange={(o) => setAssignDlg((d) => ({ ...d, open: o }))} courses={courses} categories={categories} assignment={assignDlg.assignment} />}
+      {used.course && <CourseFormDialog open={courseDlg} onOpenChange={setCourseDlg} defaultSemester={semester} />}
+      {used.event && <EventDialog open={eventDlg} onOpenChange={setEventDlg} courses={courses} defaultDay={new Date()} />}
     </div>
   );
 }
